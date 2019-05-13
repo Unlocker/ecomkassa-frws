@@ -43,8 +43,8 @@ public class UtilityConfig {
             ClientHttpRequestInterceptor interceptor) {
 
         return builder
-                .basicAuthorization(UMKA_DEFAULT_LOGIN, UMKA_DEFAULT_PASSWORD)
-                .requestFactory(factory)
+                .basicAuthentication(UMKA_DEFAULT_LOGIN, UMKA_DEFAULT_PASSWORD)
+                .requestFactory(factory.getClass())
                 .additionalInterceptors(interceptor)
                 .build();
     }
