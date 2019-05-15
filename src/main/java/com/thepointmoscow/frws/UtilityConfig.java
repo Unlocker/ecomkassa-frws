@@ -39,12 +39,10 @@ public class UtilityConfig {
     @Bean
     public RestTemplate restTemplate(
             RestTemplateBuilder builder,
-            ClientHttpRequestFactory factory,
             ClientHttpRequestInterceptor interceptor) {
 
         return builder
                 .basicAuthentication(UMKA_DEFAULT_LOGIN, UMKA_DEFAULT_PASSWORD)
-                .requestFactory(factory.getClass())
                 .additionalInterceptors(interceptor)
                 .build();
     }

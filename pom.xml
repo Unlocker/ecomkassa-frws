@@ -7,7 +7,7 @@
     <artifactId>fr-web-service</artifactId>
     <version>0.3.5</version>
 
-    <name>Fiscal registrar Web service</name>
+    <name>Fiscal registrar web service</name>
 
     <properties>
         <java.version>1.8</java.version>
@@ -15,6 +15,7 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <mockito.version>2.24.0</mockito.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <quartz.version>2.2.1</quartz.version>
     </properties>
 
@@ -111,6 +112,15 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.1.4.RELEASE</version>
+                <executions>
+                    <execution>
+                        <id>build-info</id>
+                        <goals>
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
