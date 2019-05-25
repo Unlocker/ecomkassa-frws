@@ -79,7 +79,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
                 makeUrl("fiscalcheck.json"),
                 new HttpEntity<>(request, generateHttpHeaders()),
                 String.class);
-        RegistrationResult registration = new RegistrationResult().apply(status());
+        RegistrationResult registration = new RegistrationResult();
         try {
             JsonNode response = mapper.readTree(responseStr);
             val propsArr = response.path("document").path("data").path("fiscprops").iterator();

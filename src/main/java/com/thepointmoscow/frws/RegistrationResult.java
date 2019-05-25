@@ -19,78 +19,18 @@ public class RegistrationResult extends StatusResult {
     private Registration registration;
 
     public RegistrationResult apply(StatusResult sr) {
-        setOnline(sr.isOnline())
-                .setErrorCode(sr.getErrorCode())
-                .setCurrentDocNumber(sr.getCurrentDocNumber())
-                .setCurrentSession(sr.getCurrentSession())
-                .setFrDateTime(sr.getFrDateTime())
-                .setInn(sr.getInn())
-                .setModeFR(sr.getModeFR())
-                .setSubModeFR(sr.getSubModeFR())
-                .setSerialNumber(sr.getSerialNumber())
-                .setStatusMessage(sr.getStatusMessage())
-                .setAppVersion(sr.getAppVersion())
-                .setStatus(sr.getStatus());
-        return this;
-    }
-
-    @Override
-    public RegistrationResult setOnline(boolean isOnline) {
-        super.setOnline(isOnline);
-        return this;
-    }
-
-    @Override
-    public RegistrationResult setErrorCode(int errorCode) {
-        super.setErrorCode(errorCode);
-        return this;
-    }
-
-    @Override
-    public RegistrationResult setFrDateTime(LocalDateTime frDateTime) {
-        super.setFrDateTime(frDateTime);
-        return this;
-    }
-
-    @Override
-    public RegistrationResult setInn(String inn) {
-        super.setInn(inn);
-        return this;
-    }
-
-    @Override
-    public RegistrationResult setSerialNumber(String serialNumber) {
-        super.setSerialNumber(serialNumber);
-        return this;
-    }
-
-    @Override
-    public RegistrationResult setCurrentDocNumber(int currentDocNumber) {
-        super.setCurrentDocNumber(currentDocNumber);
-        return this;
-    }
-
-    @Override
-    public RegistrationResult setCurrentSession(int currentSession) {
-        super.setCurrentSession(currentSession);
-        return this;
-    }
-
-    @Override
-    public RegistrationResult setModeFR(int modeFR) {
-        super.setModeFR(modeFR);
-        return this;
-    }
-
-    @Override
-    public RegistrationResult setSubModeFR(int subModeFR) {
-        super.setSubModeFR(subModeFR);
-        return this;
-    }
-
-    @Override
-    public RegistrationResult setStatusMessage(String statusMessage) {
-        super.setStatusMessage(statusMessage);
+        setOnline(sr.isOnline());
+        setErrorCode(sr.getErrorCode());
+        setCurrentDocNumber(sr.getCurrentDocNumber());
+        setCurrentSession(sr.getCurrentSession());
+        setFrDateTime(sr.getFrDateTime());
+        setInn(sr.getInn());
+        setModeFR(sr.getModeFR());
+        setSubModeFR(sr.getSubModeFR());
+        setSerialNumber(sr.getSerialNumber());
+        setStatusMessage(sr.getStatusMessage());
+        setAppVersion(sr.getAppVersion());
+        setStatus(sr.getStatus());
         return this;
     }
 

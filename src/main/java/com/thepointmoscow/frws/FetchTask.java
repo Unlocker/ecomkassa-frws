@@ -16,13 +16,13 @@ public class FetchTask implements Runnable {
     /**
      * A single fetch task.
      *
-     * @param backend backend
-     * @param fiscal fiscal gateway
+     * @param backend  backend
+     * @param fiscal   fiscal gateway
      * @param callback callback function
-     * @param ccms CCMs
+     * @param ccms     CCMs
      */
     public FetchTask(BackendGateway backend, FiscalGateway fiscal, BiConsumer<Runnable, Boolean> callback,
-            Collection<String> ccms) {
+                     Collection<String> ccms) {
         this.backend = backend;
         this.fiscal = fiscal;
         this.callback = callback;
@@ -52,16 +52,16 @@ public class FetchTask implements Runnable {
             status = fiscal.status();
             command = backend.status(ccmID, status);
             switch (command.getCommand()) {
-            case NONE:
-                return false;
-            case REGISTER:
-                RegistrationResult registration = fiscal
-                        .register(command.getOrder(), command.getIssueID(), 4 == status.getModeFR());
-                backend.register(ccmID, registration);
-                return true;
-            case CLOSE_SESSION:
-                fiscal.closeSession();
-                return false;
+                case NONE:
+                    return false;
+                case REGISTER:
+                    RegistrationResult registration = fiscal
+                            .register(command.getOrder(), command.getIssueID(), 4 == status.getModeFR());
+                    backend.register(ccmID, registration);
+                    return true;
+                case CLOSE_SESSION:
+                    fiscal.closeSession();
+                    return false;
             }
         } catch (Exception e) {
             log.error("Error while processing own status ({}) or input command ({}). {}", status, command, e);
