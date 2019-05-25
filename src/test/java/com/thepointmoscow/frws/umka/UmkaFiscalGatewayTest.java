@@ -2,7 +2,6 @@ package com.thepointmoscow.frws.umka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thepointmoscow.frws.UtilityConfig;
-import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,7 +63,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
         this.server.expect(requestTo(GET_STATUS_URL))
                 .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
         // WHEN
-        val res = sut.status();
+        final var res = sut.status();
         // THEN
         assertThat(res).isNotNull();
         assertThat(res.isOnline()).isTrue();
@@ -78,7 +77,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
         this.server.expect(requestTo(GET_STATUS_URL))
                 .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
         // WHEN
-        val res = sut.status();
+        final var res = sut.status();
         // THEN
         assertThat(res).isNotNull();
         assertThat(res.isOnline()).isTrue();
@@ -92,7 +91,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
         this.server.expect(requestTo(GET_STATUS_URL))
                 .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
         // WHEN
-        val res = sut.status();
+        final var res = sut.status();
         // THEN
         assertThat(res).isNotNull();
         assertThat(res.isOnline()).isTrue();
