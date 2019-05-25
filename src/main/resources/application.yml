@@ -14,7 +14,7 @@ fiscal:
 
 backend:
   server:
-    url: 'http://138.68.104.133:9000'
+    url: 'https://app.ecomkassa.ru'
     username: 'test@test.test'
     password: 'test'
-    ccmID: '28d9b703-4f48-4c11-bdc3-51b7436f0152,28d9b703-4f48-4c11-bdc3-51b7436f0153'
+    ccmID: '519471b6-5d27-4844-8fa0-032698926b18'
