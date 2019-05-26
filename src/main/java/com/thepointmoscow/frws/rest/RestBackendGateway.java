@@ -28,8 +28,8 @@ public class RestBackendGateway implements BackendGateway {
     private String password;
 
     @Autowired
-    public RestBackendGateway(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public RestBackendGateway(RestTemplate backendRestTemplate) {
+        this.restTemplate = backendRestTemplate;
     }
 
     @Override
