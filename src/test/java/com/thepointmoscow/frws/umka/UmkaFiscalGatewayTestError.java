@@ -29,7 +29,6 @@ import java.util.Collections;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
@@ -38,7 +37,9 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 class UmkaFiscalGatewayTestError {
 
     private static final String GET_STATUS_URL = "http://TEST_HOST:54321/cashboxstatus.json";
-    private static final String GET_REGISTER_URL = "http://TEST_HOST:54321/fiscalcheck.json";
+    private static final String POST_REGISTER_URL = "http://TEST_HOST:54321/fiscalcheck.json";
+    private static final String GET_OPEN_URL = "http://TEST_HOST:54321/cycleopen.json?print=1";
+    private static final String GET_CLOSE_URL = "http://TEST_HOST:54321/cycleclose.json?print=1";
     private MockRestServiceServer server;
 
     @Autowired
@@ -74,7 +75,7 @@ class UmkaFiscalGatewayTestError {
         this.server.expect(requestTo(GET_STATUS_URL))
                 .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
 
-        this.server.expect(requestTo(GET_REGISTER_URL))
+        this.server.expect(requestTo(POST_REGISTER_URL))
                 .andRespond(withBadRequest()
                         .body(body)
                         .contentType(MediaType.TEXT_PLAIN)
@@ -105,7 +106,7 @@ class UmkaFiscalGatewayTestError {
         this.server.expect(requestTo(GET_STATUS_URL))
                 .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
 
-        this.server.expect(requestTo(GET_REGISTER_URL))
+        this.server.expect(requestTo(POST_REGISTER_URL))
                 .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
                         .body(body)
                         .contentType(MediaType.TEXT_PLAIN)
@@ -117,6 +118,37 @@ class UmkaFiscalGatewayTestError {
         // THEN
         // WHEN
         Assertions.assertThrows(FiscalException.class, () -> umkaFiscalGateway.register(order, rnd.nextLong(), false));
+    }
+
+    @Test
+    void openSessionWithServerErrorShouldThrowException() throws IOException {
+        // GIVEN
+        final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/fiscal-error.json");
+
+        this.server.expect(requestTo(GET_OPEN_URL))
+                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(body)
+                        .contentType(MediaType.TEXT_PLAIN)
+                );
+
+        // THEN
+        // WHEN
+        Assertions.assertThrows(FiscalException.class, () -> umkaFiscalGateway.openSession());
+    }
+
+    @Test
+    void closeSessionWithServerErrorShouldThrowException() throws IOException {
+        // GIVEN
+        final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/fiscal-error.json");
+
+        this.server.expect(requestTo(GET_CLOSE_URL))
+                .andRespond(withStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(body)
+                        .contentType(MediaType.TEXT_PLAIN)
+                );
+        // THEN
+        // WHEN
+        Assertions.assertThrows(FiscalException.class, () -> umkaFiscalGateway.closeSession());
     }
 
     private Order generateTemplateOrder() {
