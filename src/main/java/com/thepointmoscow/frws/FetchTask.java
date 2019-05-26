@@ -1,5 +1,6 @@
 package com.thepointmoscow.frws;
 
+import com.thepointmoscow.frws.exceptions.FiscalException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
@@ -63,7 +64,9 @@ public class FetchTask implements Runnable {
                     fiscal.closeSession();
                     return false;
             }
-        } catch (Exception e) {
+        } catch (FiscalException e){
+            backend.error(ccmID, command.getIssueID(), e.getFiscalResultError());
+        } catch(Exception e) {
             log.error("Error while processing own status ({}) or input command ({}). {}", status, command, e);
         }
         return false;

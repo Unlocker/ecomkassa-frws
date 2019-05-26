@@ -3,6 +3,7 @@ package com.thepointmoscow.frws.umka;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thepointmoscow.frws.*;
+import com.thepointmoscow.frws.exceptions.FiscalException;
 import com.thepointmoscow.frws.exceptions.FrwsException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -11,8 +12,10 @@ import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.web.client.RestClientResponseException;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Stream;
@@ -74,10 +77,16 @@ public class UmkaFiscalGateway implements FiscalGateway {
         boolean isCorrection = SaleCharge.valueOf(order.getSaleCharge()).isCorrection();
         Map<String, Object> request = isCorrection ? correctionOrder(order, issueID) : regularOrder(order, issueID);
 
-        String responseStr = getRestTemplate().postForObject(
-                makeUrl("fiscalcheck.json"),
-                new HttpEntity<>(request, generateHttpHeaders()),
-                String.class);
+        String responseStr;
+        try {
+            responseStr = getRestTemplate().postForObject(
+                    makeUrl("fiscalcheck.json"),
+                    new HttpEntity<>(request, generateHttpHeaders()),
+                    String.class);
+        } catch (RestClientResponseException e) {
+            FiscalResultError resultError = makeFiscalResultErrorFromExceptionBody(e.getResponseBodyAsByteArray());
+            throw new FiscalException(resultError);
+        }
         RegistrationResult registration = new RegistrationResult();
         try {
             JsonNode response = mapper.readTree(responseStr);
@@ -131,6 +140,18 @@ public class UmkaFiscalGateway implements FiscalGateway {
             } else {
                 throw new FrwsException(e);
             }
+        }
+    }
+
+    private FiscalResultError makeFiscalResultErrorFromExceptionBody(byte[] responseBodyAsByteArray) {
+        try {
+            JsonNode response = mapper.readTree(responseBodyAsByteArray);
+            final var resultDescription = response.path("document").path("message").path("resultDescription").textValue();
+            final var result = response.path("document").path("result").intValue();
+            return new FiscalResultError(result, resultDescription);
+        } catch (IOException e) {
+            log.error("Error parsing the response: {} | {}", responseBodyAsByteArray, e.getMessage());
+            throw new FrwsException(e);
         }
     }
 

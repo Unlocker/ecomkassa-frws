@@ -4,6 +4,7 @@ import com.thepointmoscow.frws.BackendCommand;
 import com.thepointmoscow.frws.BackendGateway;
 import com.thepointmoscow.frws.RegistrationResult;
 import com.thepointmoscow.frws.StatusResult;
+import com.thepointmoscow.frws.FiscalResultError;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -46,6 +47,15 @@ public class RestBackendGateway implements BackendGateway {
                 rootUrl + "/api/qkkm/registered?ccmID={ccmID}&issueID={issueID}", registration,
                 BackendCommand.class, ccmID, registration.getRegistration().getIssueID());
         log.info("Sent a registration. RQ={}, RS={}", registration, result);
+        return result.getBody().setCcmID(ccmID);
+    }
+
+    @Override
+    public BackendCommand error(String ccmID, Long issueID, FiscalResultError resultError) {
+        ResponseEntity<BackendCommand> result = restTemplate.postForEntity(
+                rootUrl + "/api/qkkm/registered?ccmID={ccmID}&issueID={issueID}", resultError,
+                BackendCommand.class, ccmID, issueID);
+        log.info("Sent a error. RQ={}, RS={}", resultError, result);
         return result.getBody().setCcmID(ccmID);
     }
 }
