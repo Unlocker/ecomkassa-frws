@@ -22,23 +22,23 @@ public class SelectResult extends StatusResult {
         /**
          * ИНН кассы
          */
-        private long taxNumber;
+        private String taxNumber;
         /**
          * РН кассы
          */
-        private long regNumber;
+        private String regNumber;
         /**
          * ЗН кассы
          */
-        private long serialNumber;
+        private String serialNumber;
         /**
          * ФН
          */
-        private long storageNumber;
+        private String storageNumber;
         /**
          * ФД
          */
-        private long docNumber;
+        private String docNumber;
         /**
          * Дата документа
          */

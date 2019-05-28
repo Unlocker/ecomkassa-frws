@@ -396,7 +396,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
             result.setSubModeFR(0);
             result.setSerialNumber(status.map(x -> x.get("serial").asText()).orElse(""));
             result.setStatusMessage(ofNullable(response.path("message")).map(JsonNode::asText).orElse(""));
-            result.setStatus(response);
+            result.setJsonNodeStatus(response);
             this.lastStatus = new RegInfo(inn, taxVariant, regNumber);
             return result;
         } catch (Exception e) {
@@ -456,7 +456,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
             final var propsArr = response.path("document").path("data").path("fiscprops").iterator();
 
             final var codes = new HashSet<>(Arrays.asList(1018, 1037, 1013, 1041, 1040));
-            final var values = new HashMap<Integer, Integer>();
+            final var values = new HashMap<Integer, String>();
             Optional<ZonedDateTime> regDate = Optional.empty();
             while (propsArr.hasNext()) {
                 final var current = propsArr.next();
@@ -470,7 +470,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
                     continue;
                 }
                 if (codes.contains(tag)) {
-                    values.put(tag, current.get("value").asInt());
+                    values.put(tag, current.get("value").asText().trim());
                 }
             }
 

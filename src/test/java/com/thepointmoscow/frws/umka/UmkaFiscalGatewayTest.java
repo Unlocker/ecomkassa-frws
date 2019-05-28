@@ -26,9 +26,11 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { UtilityConfig.class, WebTestConfig.class }) class UmkaFiscalGatewayTest {
+@ContextConfiguration(classes = {UtilityConfig.class, WebTestConfig.class})
+class UmkaFiscalGatewayTest {
 
     private static final String GET_STATUS_URL = "http://TEST_HOST:54321/cashboxstatus.json";
+    private static final String GET_SELECT_URL = "http://TEST_HOST:54321/fiscaldoc.json?number=12&print=1";
     private MockRestServiceServer server;
 
     @Autowired
@@ -56,7 +58,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
         return writer.toString();
     }
 
-    @Test void shouldGetExpiredStatus() throws IOException {
+    @Test
+    void shouldGetExpiredStatus() throws IOException {
         // GIVEN
         final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/expired-session.json");
 
@@ -70,7 +73,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
         assertThat(res.getModeFR()).isEqualTo(UmkaFiscalGateway.STATUS_EXPIRED_SESSION);
     }
 
-    @Test void shouldGetOpenedStatus() throws IOException {
+    @Test
+    void shouldGetOpenedStatus() throws IOException {
         // GIVEN
         final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/open-session.json");
 
@@ -84,7 +88,8 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
         assertThat(res.getModeFR()).isEqualTo(UmkaFiscalGateway.STATUS_OPEN_SESSION);
     }
 
-    @Test void shouldGetClosedStatus() throws IOException {
+    @Test
+    void shouldGetClosedStatus() throws IOException {
         // GIVEN
         final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/closed-session.json");
 
@@ -96,6 +101,24 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
         assertThat(res).isNotNull();
         assertThat(res.isOnline()).isTrue();
         assertThat(res.getModeFR()).isEqualTo(UmkaFiscalGateway.STATUS_CLOSED_SESSION);
+    }
+
+    @Test
+    void shouldGetValidDocument() throws IOException {
+        // GIVEN
+        final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/fiscaldoc.json");
+
+        this.server.expect(requestTo(GET_SELECT_URL))
+                .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
+        // WHEN
+        final var res = sut.selectDoc("12");
+        // THEN
+        assertThat(res).isNotNull();
+        assertThat(res.getStatus().getTaxNumber()).isEqualTo("7725225244");
+        assertThat(res.getStatus().getRegNumber()).isEqualTo("1693666568053977");
+        assertThat(res.getStatus().getSerialNumber()).isEqualTo("16999987");
+        assertThat(res.getStatus().getStorageNumber()).isEqualTo("9999078900003063");
+        assertThat(res.getStatus().getDocNumber()).isEqualTo("12");
     }
 
 }

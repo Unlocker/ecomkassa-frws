@@ -30,7 +30,7 @@ public class StatusResult {
     private int subModeFR;
     private String statusMessage;
     private String appVersion;
-    private JsonNode status;
+    private JsonNode jsonNodeStatus;
 
     /**
      * Checks against the session opening.
