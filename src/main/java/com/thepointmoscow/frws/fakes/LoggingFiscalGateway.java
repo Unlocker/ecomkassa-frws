@@ -1,9 +1,6 @@
 package com.thepointmoscow.frws.fakes;
 
-import com.thepointmoscow.frws.FiscalGateway;
-import com.thepointmoscow.frws.Order;
-import com.thepointmoscow.frws.RegistrationResult;
-import com.thepointmoscow.frws.StatusResult;
+import com.thepointmoscow.frws.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.info.BuildProperties;
 
@@ -77,5 +74,11 @@ public class LoggingFiscalGateway implements FiscalGateway {
     public StatusResult continuePrint() {
         log.info("Print continuation request received.");
         return status;
+    }
+
+    @Override
+    public SelectResult selectDoc(String documentNumber) {
+        log.info("Select document request received");
+        return null;
     }
 }

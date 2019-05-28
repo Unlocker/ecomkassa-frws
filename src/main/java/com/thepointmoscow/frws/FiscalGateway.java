@@ -48,4 +48,11 @@ public interface FiscalGateway {
      * @return status
      */
     StatusResult continuePrint();
+
+    /**
+     * Selects document by documentNumber
+     *
+     * @return status
+     */
+    SelectResult selectDoc(String documentNumber);
 }

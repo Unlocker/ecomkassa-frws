@@ -10,6 +10,7 @@ public class BackendCommand {
     private Order order;
     private Long issueID;
     private String ccmID;
+    private String documentNumber;
 
     /**
      * Command types.
@@ -26,6 +27,10 @@ public class BackendCommand {
         /**
          * Close a session.
          */
-        CLOSE_SESSION
+        CLOSE_SESSION,
+        /**
+         * Select a doc.
+         */
+        SELECT_DOC
     }
 }

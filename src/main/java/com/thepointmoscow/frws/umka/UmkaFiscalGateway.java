@@ -444,4 +444,63 @@ public class UmkaFiscalGateway implements FiscalGateway {
     public StatusResult continuePrint() {
         throw new UnsupportedOperationException("continuePrint");
     }
+
+    @Override
+    public SelectResult selectDoc(String documentNumber) {
+        String responseStr = getRestTemplate().getForObject(makeUrl("fiscaldoc.json?number=" + documentNumber + "&print=1"), String.class);
+
+        SelectResult selectResult = new SelectResult();
+
+        try {
+            JsonNode response = mapper.readTree(responseStr);
+            final var propsArr = response.path("document").path("data").path("fiscprops").iterator();
+
+            final var codes = new HashSet<>(Arrays.asList(1018, 1037, 1013, 1041, 1040));
+            final var values = new HashMap<Integer, Integer>();
+            Optional<ZonedDateTime> regDate = Optional.empty();
+            while (propsArr.hasNext()) {
+                final var current = propsArr.next();
+                final int tag = current.get("tag").asInt();
+                if (1012 == tag) {
+                    regDate = Optional.of(
+                            OffsetDateTime.parse(current.get("value").asText()
+                                    , RFC_1123_DATE_TIME
+                            ).toZonedDateTime()
+                    );
+                    continue;
+                }
+                if (codes.contains(tag)) {
+                    values.put(tag, current.get("value").asInt());
+                }
+            }
+
+            if (codes.stream()
+                    .map(values::get)
+                    .map(Optional::ofNullable)
+                    .anyMatch(Optional::isEmpty) || regDate.isEmpty()) {
+                throw new FrwsException(
+                        String.format(
+                                "There is missed one or several required attributes for DOCUMENT_NUMBER=%s."
+                                , documentNumber
+                        )
+                );
+            }
+            final var status = new SelectResult.Status()
+                    .setDocDate(regDate.get())
+                    .setTaxNumber(values.get(1018))
+                    .setRegNumber(values.get(1037))
+                    .setSerialNumber(values.get(1013))
+                    .setStorageNumber(values.get(1041))
+                    .setDocNumber(values.get(1040))
+                    .setPayload(response.path("document").asText());
+            return selectResult.setStatus(status);
+        } catch (Exception e) {
+            log.error("Error parsing the response: {} | {}", responseStr, e.getMessage());
+            if (e instanceof FrwsException) {
+                throw (FrwsException) e;
+            } else {
+                throw new FrwsException(e);
+            }
+        }
+    }
 }

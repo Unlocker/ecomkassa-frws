@@ -60,6 +60,10 @@ public class FetchTask implements Runnable {
                             .register(command.getOrder(), command.getIssueID(), 4 == status.getModeFR());
                     backend.register(ccmID, registration);
                     return true;
+                case SELECT_DOC:
+                    SelectResult select = fiscal.selectDoc(command.getDocumentNumber());
+                    backend.selectDoc(ccmID, command.getIssueID(), select);
+                    return true;
                 case CLOSE_SESSION:
                     fiscal.closeSession();
                     return false;

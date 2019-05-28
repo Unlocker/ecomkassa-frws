@@ -1,10 +1,6 @@
 package com.thepointmoscow.frws.rest;
 
-import com.thepointmoscow.frws.BackendCommand;
-import com.thepointmoscow.frws.BackendGateway;
-import com.thepointmoscow.frws.RegistrationResult;
-import com.thepointmoscow.frws.StatusResult;
-import com.thepointmoscow.frws.FiscalResultError;
+import com.thepointmoscow.frws.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -56,6 +52,15 @@ public class RestBackendGateway implements BackendGateway {
                 rootUrl + "/api/qkkm/registered?ccmID={ccmID}&issueID={issueID}", resultError,
                 BackendCommand.class, ccmID, issueID);
         log.info("Sent a error. RQ={}, RS={}", resultError, result);
+        return result.getBody().setCcmID(ccmID);
+    }
+
+    @Override
+    public BackendCommand selectDoc(String ccmID, Long issueID, SelectResult select) {
+        ResponseEntity<BackendCommand> result = restTemplate.postForEntity(
+                rootUrl + "/api/qkkm/select?ccmID={ccmID}&issueID={issueID}", select,
+                BackendCommand.class, ccmID, issueID);
+        log.info("Sent a error. RQ={}, RS={}", select, result);
         return result.getBody().setCcmID(ccmID);
     }
 }
