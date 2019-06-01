@@ -79,6 +79,13 @@ public class LoggingFiscalGateway implements FiscalGateway {
     @Override
     public SelectResult selectDoc(String documentNumber) {
         log.info("Select document request received");
-        return null;
+        SelectResult.Status status = new SelectResult.Status()
+                .setTaxNumber("7725225244")
+                .setRegNumber("1693666568053977")
+                .setSerialNumber("16999987")
+                .setStorageNumber("9999078900003063")
+                .setDocNumber("12")
+                .setPayload("");
+        return new SelectResult().setStatus(status);
     }
 }

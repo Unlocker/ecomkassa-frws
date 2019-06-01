@@ -5,8 +5,14 @@
 }
 
 .document-id {
-    justify-content: center;
     display: flex;
+    justify-content: center;
+    flex-direction: column;
     margin: 20px 0 20px 0;
 }
 
+.document-input {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0 20px 0;
+}

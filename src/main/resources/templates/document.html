@@ -1,12 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
 <head>
     <meta charset="UTF-8">
 </head>
 <body>
-<div class="document-id">
-    <input type="text" required="true" class="input-lg" placeholder="Номер документа">
-    <button type="submit" value="submit" class="btn-submit">Получить</button>
+<div class="document-id" th:fragment="document-input">
+    <div class="document-input">
+        <input id="document-number" type="text" required class="input-lg" placeholder="Номер документа">
+        <button type="submit" value="submit" class="btn-submit" onclick="getDocumentById()">Получить</button>
+    </div>
+    <div id="document-body"></div>
+</div>
+
+<div class="document-body" th:fragment="document-body">
+    <!--/*@thymesVar id="document" type="com.thepointmoscow.frws.SelectResult"*/-->
+    <div th:text="${document}"></div>
 </div>
 </body>
 </html>

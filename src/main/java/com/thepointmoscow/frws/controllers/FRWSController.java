@@ -1,10 +1,13 @@
 package com.thepointmoscow.frws.controllers;
 
 import com.thepointmoscow.frws.FiscalGateway;
+import com.thepointmoscow.frws.SelectResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 /**
@@ -15,9 +18,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/frws")
 public class FRWSController {
 
-    /**
-     * Fiscal registrar.
-     */
     private final FiscalGateway frGateway;
 
     @Autowired
@@ -25,15 +25,9 @@ public class FRWSController {
         this.frGateway = frGateway;
     }
 
-
-    /**
-     * Retrieves a status of a fiscal registrar.
-     *
-     * @return status
-     */
     @GetMapping
-    public String status() {
-        log.info("YEEE");
+    public String home() {
+        log.info("Received request /frws");
         return "index";
     }
 
@@ -45,7 +39,23 @@ public class FRWSController {
     @GetMapping("/document")
     public String getDocument() {
         log.info("Received request /frws/document");
-        return "document";
+        return "document :: document-input";
+    }
+
+    /**
+     * Retrieves a document by id.
+     *
+     * @return status
+     */
+    @GetMapping("/document/{documentId}")
+    public String getDocumentById(@PathVariable(value = "documentId") String documentId, Model model) {
+        log.info("Received request /frws/document/{documentId}");
+
+        SelectResult selectResult = frGateway.selectDoc(documentId);
+
+        model.addAttribute("document", selectResult);
+
+        return "document :: document-body";
     }
 
 }
