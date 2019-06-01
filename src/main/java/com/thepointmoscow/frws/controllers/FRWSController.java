@@ -15,6 +15,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 import java.util.Arrays;
 import java.util.Properties;
@@ -61,14 +62,16 @@ public class FRWSController {
      * @return status
      */
     @GetMapping("/document/{documentId}")
-    public String getDocumentById(@PathVariable(value = "documentId") String documentId, Model model) {
+    @ResponseBody
+    public SelectResult getDocumentById(@PathVariable(value = "documentId") String documentId, Model model) {
         log.info("Received request /frws/document/{documentId}");
 
         SelectResult selectResult = frGateway.selectDoc(documentId);
 
-        model.addAttribute("document", selectResult);
+//        model.addAttribute("document", selectResult);
 
-        return "document :: document-body";
+//        return "document :: document-body";
+        return selectResult;
     }
 
     @GetMapping("/settings")
