@@ -37,6 +37,10 @@ html, body {
     color: white;
     font-size: 18px;
     margin: 0 0 0 40px;
-    padding: 0 20px 0 20px;
+    padding: 10px 20px 10px 20px;
     cursor: pointer;
+}
+
+.btn-submit:hover {
+    opacity: 0.7;
 }

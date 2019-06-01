@@ -2,6 +2,7 @@ package com.thepointmoscow.frws.controllers;
 
 import com.thepointmoscow.frws.FiscalGateway;
 import com.thepointmoscow.frws.SelectResult;
+import com.thepointmoscow.frws.StatusResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.env.OriginTrackedMapPropertySource;
@@ -63,15 +64,10 @@ public class FRWSController {
      */
     @GetMapping("/document/{documentId}")
     @ResponseBody
-    public SelectResult getDocumentById(@PathVariable(value = "documentId") String documentId, Model model) {
+    public SelectResult getDocumentById(@PathVariable(value = "documentId") String documentId) {
         log.info("Received request /frws/document/{documentId}");
 
-        SelectResult selectResult = frGateway.selectDoc(documentId);
-
-//        model.addAttribute("document", selectResult);
-
-//        return "document :: document-body";
-        return selectResult;
+        return frGateway.selectDoc(documentId);
     }
 
     @GetMapping("/settings")
@@ -89,6 +85,28 @@ public class FRWSController {
         model.addAttribute("props", props);
 
         return "settings";
+    }
+
+    @GetMapping("/management")
+    public String getManagement() {
+        log.info("Received request /frws/management");
+        return "management";
+    }
+
+    @GetMapping("/management/open")
+    @ResponseBody
+    public StatusResult managementOpen() {
+        log.info("Received request /frws/management/open");
+
+        return frGateway.openSession();
+    }
+
+    @GetMapping("/management/close")
+    @ResponseBody
+    public StatusResult managementClose() {
+        log.info("Received request /frws/management/close");
+
+        return frGateway.closeSession();
     }
 
 }

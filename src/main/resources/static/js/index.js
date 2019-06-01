@@ -23,3 +23,22 @@ function settings() {
         $("#content").empty().append(fragment);
     })
 }
+
+
+function management() {
+    $.safeGet("frws/management", function (fragment) {
+        $("#content").empty().append(fragment);
+    })
+}
+
+function openFRWS() {
+    $.safeGet("frws/management/open", function (fragment) {
+        $("#response-body").html(JSON.stringify(fragment, null, 3));
+    })
+}
+
+function closeFRWS() {
+    $.safeGet("frws/management/close", function (fragment) {
+        $("#response-body").html(JSON.stringify(fragment, null, 3));
+    })
+}
