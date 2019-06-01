@@ -1,10 +1,9 @@
 package com.thepointmoscow.frws.controllers;
 
-import com.thepointmoscow.frws.FiscalGateway;
-import com.thepointmoscow.frws.SelectResult;
-import com.thepointmoscow.frws.StatusResult;
+import com.thepointmoscow.frws.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.env.OriginTrackedMapPropertySource;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.AbstractEnvironment;
@@ -31,13 +30,18 @@ import java.util.stream.StreamSupport;
 @PropertySource("classpath:/application.yml")
 public class FRWSController {
 
+    @Value("${backend.server.ccmID}")
+    private String ccmID;
+
     private final FiscalGateway frGateway;
     private final Environment environment;
+    private final BackendGateway backend;
 
     @Autowired
-    public FRWSController(FiscalGateway frGateway, Environment environment) {
+    public FRWSController(FiscalGateway frGateway, Environment environment, BackendGateway backend) {
         this.frGateway = frGateway;
         this.environment = environment;
+        this.backend = backend;
     }
 
     @GetMapping
@@ -107,6 +111,14 @@ public class FRWSController {
         log.info("Received request /frws/management/close");
 
         return frGateway.closeSession();
+    }
+
+    @GetMapping("/backend/status")
+    @ResponseBody
+    public BackendCommand backendStatus() {
+        log.info("Received request /frws/backend/status");
+
+        return backend.status(ccmID, frGateway.status());
     }
 
 }

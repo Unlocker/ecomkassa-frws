@@ -42,3 +42,9 @@ function closeFRWS() {
         $("#response-body").html(JSON.stringify(fragment, null, 3));
     })
 }
+
+function sendStatus() {
+    $.safeGet("frws/backend/status", function (fragment) {
+        $("#content").empty().append("<pre id=\"document-body\"><code>" + JSON.stringify(fragment, null, 3) + "</code></pre>");
+    })
+}
