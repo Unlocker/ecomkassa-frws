@@ -9,3 +9,9 @@ function getDocumentById() {
         $("#document-body").empty().append(fragment);
     })
 }
+
+function settings() {
+    $.safeGet("frws/settings" , function (fragment) {
+        $("#content").empty().append(fragment);
+    })
+}
