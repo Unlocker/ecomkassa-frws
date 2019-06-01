@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="images/favicon2.ico" type="image/x-icon">
+    <title th:text="'E-COM Kassa - домашняя страница'"></title>
+    <script type="text/javascript" src="webjars/jquery/3.4.1/jquery.min.js"></script>
+    <script th:src="@{/js/index.js}"></script>
+    <script th:src="@{/js/safe-ajax.js}"></script>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/index.css}"/>
+    <link rel="stylesheet" type="text/css" th:href="@{/css/document.css}"/>
+</head>
+<body>
+<header class="navbar">
+    <div class="item">
+        <a class="navbar-brand" href="/">
+            <img src="/images/logo_navbar.png" alt="E-COM Kassa">
+        </a>
+    </div>
+    <div class="container">
+        <div class="item" onclick="settings()">Настройки</div>
+        <div class="item" onclick="getDocument()">Документ</div>
+        <div class="item" onclick="management()">Управление</div>
+        <div class="item" onclick="sendSatatus()">Отправить статус</div>
+    </div>
+</header>
+<div id="content" th:class="site-content"></div>
+</body>
+</html>

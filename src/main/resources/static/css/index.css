@@ -1,0 +1,41 @@
+html, body {
+    margin: 0;
+    font-family: 'Roboto', Arial, sans-serif;
+    background-color: #ededf2;
+}
+
+.navbar {
+    background-color: #ffffff;
+    min-height: 80px;
+    display: flex;
+    justify-content: start;
+    align-items: center;
+}
+
+.navbar .container {
+    display: flex;
+    text-align: center;
+}
+
+.navbar .container .item {
+    padding: 0 40px 0 40px;
+    color: gray;
+    cursor: pointer;
+}
+
+.navbar .container .item:hover {
+    color: #6464ED;
+}
+
+.navbar-brand {
+    padding: 0 40px 0 40px;
+}
+
+.btn-submit {
+    background-color: #245580;
+    border: none;
+    color: white;
+    font-size: 18px;
+    margin: 0 0 0 40px;
+    padding: 0 20px 0 20px;
+}
