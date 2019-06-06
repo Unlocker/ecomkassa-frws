@@ -197,9 +197,20 @@ public class UmkaFiscalGateway implements FiscalGateway {
         // Sale Charge
         tags.add(new FiscalProperty().setTag(1054)
                 .setValue(SaleCharge.valueOf(order.getSaleCharge()).getCode()));
+
+        // == Customer attributes ==
+        final Optional<Order.Customer> maybeCustomer = ofNullable(order.getCustomer());
         // customer id: email or phone
-        ofNullable(order.getCustomer().getId())
-                .map(customer -> new FiscalProperty().setTag(1008).setValue(customer))
+        maybeCustomer.map(Order.Customer::getId)
+                .map(customerId -> new FiscalProperty().setTag(1008).setValue(customerId))
+                .ifPresent(tags::add);
+        // customer name
+        maybeCustomer.map(Order.Customer::getName)
+                .map(customerName -> new FiscalProperty().setTag(1227).setValue(customerName))
+                .ifPresent(tags::add);
+        // customer tax number
+        maybeCustomer.map(Order.Customer::getTaxNumber)
+                .map(customerTaxNo -> new FiscalProperty().setTag(1228).setValue(customerTaxNo))
                 .ifPresent(tags::add);
 
         for (Order.Item i : order.getItems()) {

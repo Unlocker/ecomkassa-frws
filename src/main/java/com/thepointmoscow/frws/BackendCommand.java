@@ -7,11 +7,16 @@ import lombok.experimental.Accessors;
 @Data
 @Accessors(chain = true)
 public class BackendCommand {
+    @NonNull
     private BackendCommandType command;
-    private Order order;
+
     @NonNull
     private Long issueID;
+
+    @NonNull
     private String ccmID;
+
+    private Order order;
     private String documentNumber;
 
     /**

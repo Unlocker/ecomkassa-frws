@@ -1,13 +1,14 @@
 package com.thepointmoscow.frws;
 
 import com.google.common.base.Strings;
-import lombok.Data;
-import lombok.experimental.Accessors;
-import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import lombok.Data;
+import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Accessors(chain = true)
@@ -47,6 +48,8 @@ public class Order {
     public static class Customer {
         private String phone;
         private String email;
+        private String name;
+        private String taxNumber;
 
         public String getId() {
             return !Strings.isNullOrEmpty(email) ? email : phone;
