@@ -1,12 +1,18 @@
 package com.thepointmoscow.frws.fakes;
 
-import com.thepointmoscow.frws.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.info.BuildProperties;
+
+import com.thepointmoscow.frws.FiscalGateway;
+import com.thepointmoscow.frws.Order;
+import com.thepointmoscow.frws.RegistrationResult;
+import com.thepointmoscow.frws.SelectResult;
+import com.thepointmoscow.frws.StatusResult;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Fiscal gateway that sends to log received requests.
@@ -71,21 +77,15 @@ public class LoggingFiscalGateway implements FiscalGateway {
     }
 
     @Override
-    public StatusResult continuePrint() {
-        log.info("Print continuation request received.");
-        return status;
-    }
-
-    @Override
     public SelectResult selectDoc(String documentNumber) {
         log.info("Select document request received");
-        SelectResult.Status status = new SelectResult.Status()
+        SelectResult.Document document = new SelectResult.Document()
                 .setTaxNumber("7725225244")
                 .setRegNumber("1693666568053977")
                 .setSerialNumber("16999987")
                 .setStorageNumber("9999078900003063")
                 .setDocNumber("12")
                 .setPayload("");
-        return new SelectResult().setStatus(status);
+        return new SelectResult().setDocument(document);
     }
 }

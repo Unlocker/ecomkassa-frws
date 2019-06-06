@@ -1,16 +1,16 @@
 package com.thepointmoscow.frws;
 
+import java.time.ZonedDateTime;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.time.ZonedDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(chain = true)
 public class SelectResult extends StatusResult {
-    private Status status;
+    private Document document;
 
     public SelectResult() {
         super("SELECT");
@@ -18,7 +18,7 @@ public class SelectResult extends StatusResult {
 
     @Data
     @Accessors(chain = true)
-    public static class Status {
+    public static class Document {
         /**
          * ИНН кассы
          */

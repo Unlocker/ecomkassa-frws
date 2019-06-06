@@ -1,10 +1,11 @@
 package com.thepointmoscow.frws;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import lombok.Data;
-import lombok.experimental.Accessors;
 
 import java.time.LocalDateTime;
+
+import lombok.Data;
+import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
@@ -20,7 +21,6 @@ public class StatusResult {
 
     protected final String type;
     private boolean isOnline;
-    private int errorCode;
     private LocalDateTime frDateTime;
     private String inn;
     private String serialNumber;
@@ -28,9 +28,10 @@ public class StatusResult {
     private int currentSession;
     private int modeFR;
     private int subModeFR;
+    private int errorCode;
     private String statusMessage;
     private String appVersion;
-    private JsonNode jsonNodeStatus;
+    private JsonNode status;
 
     /**
      * Checks against the session opening.

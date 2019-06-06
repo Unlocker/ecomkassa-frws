@@ -1,7 +1,5 @@
 package com.thepointmoscow.frws.controllers;
 
-import com.thepointmoscow.frws.*;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.env.OriginTrackedMapPropertySource;
@@ -17,9 +15,17 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.thepointmoscow.frws.BackendCommand;
+import com.thepointmoscow.frws.BackendGateway;
+import com.thepointmoscow.frws.FiscalGateway;
+import com.thepointmoscow.frws.SelectResult;
+import com.thepointmoscow.frws.StatusResult;
+
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.stream.StreamSupport;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * API endpoint for fiscal manipulation.
@@ -28,7 +34,7 @@ import java.util.stream.StreamSupport;
 @Controller
 @RequestMapping("/frws")
 @PropertySource("classpath:/application.yml")
-public class FRWSController {
+public class FrwsController {
 
     @Value("${backend.server.ccmID}")
     private String ccmID;
@@ -38,7 +44,7 @@ public class FRWSController {
     private final BackendGateway backend;
 
     @Autowired
-    public FRWSController(FiscalGateway frGateway, Environment environment, BackendGateway backend) {
+    public FrwsController(FiscalGateway frGateway, Environment environment, BackendGateway backend) {
         this.frGateway = frGateway;
         this.environment = environment;
         this.backend = backend;
@@ -46,7 +52,6 @@ public class FRWSController {
 
     @GetMapping
     public String home() {
-        log.info("Received request /frws");
         return "index";
     }
 
@@ -57,7 +62,6 @@ public class FRWSController {
      */
     @GetMapping("/document")
     public String getDocument() {
-        log.info("Received request /frws/document");
         return "document :: document-input";
     }
 
@@ -69,15 +73,11 @@ public class FRWSController {
     @GetMapping("/document/{documentId}")
     @ResponseBody
     public SelectResult getDocumentById(@PathVariable(value = "documentId") String documentId) {
-        log.info("Received request /frws/document/{documentId}");
-
         return frGateway.selectDoc(documentId);
     }
 
     @GetMapping("/settings")
     public String getSettings(Model model) {
-        log.info("Received request /frws/settigns");
-
         Properties props = new Properties();
         MutablePropertySources propSrcs = ((AbstractEnvironment) environment).getPropertySources();
         StreamSupport.stream(propSrcs.spliterator(), false)
@@ -93,31 +93,24 @@ public class FRWSController {
 
     @GetMapping("/management")
     public String getManagement() {
-        log.info("Received request /frws/management");
         return "management";
     }
 
     @GetMapping("/management/open")
     @ResponseBody
     public StatusResult managementOpen() {
-        log.info("Received request /frws/management/open");
-
         return frGateway.openSession();
     }
 
     @GetMapping("/management/close")
     @ResponseBody
     public StatusResult managementClose() {
-        log.info("Received request /frws/management/close");
-
         return frGateway.closeSession();
     }
 
     @GetMapping("/backend/status")
     @ResponseBody
     public BackendCommand backendStatus() {
-        log.info("Received request /frws/backend/status");
-
         return backend.status(ccmID, frGateway.status());
     }
 

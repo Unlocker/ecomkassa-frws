@@ -1,10 +1,10 @@
 package com.thepointmoscow.frws;
 
+import java.time.ZonedDateTime;
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
-
-import java.time.ZonedDateTime;
 
 @EqualsAndHashCode(callSuper = true)
 @Data
@@ -29,7 +29,7 @@ public class RegistrationResult extends StatusResult {
         setSerialNumber(sr.getSerialNumber());
         setStatusMessage(sr.getStatusMessage());
         setAppVersion(sr.getAppVersion());
-        setJsonNodeStatus(sr.getJsonNodeStatus());
+        setStatus(sr.getStatus());
         return this;
     }
 

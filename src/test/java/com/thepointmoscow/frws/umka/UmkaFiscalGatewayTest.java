@@ -1,7 +1,5 @@
 package com.thepointmoscow.frws.umka;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thepointmoscow.frws.UtilityConfig;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +13,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.client.MockRestServiceServer;
 import org.springframework.web.client.RestTemplate;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thepointmoscow.frws.UtilityConfig;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -43,7 +44,7 @@ class UmkaFiscalGatewayTest {
     private UmkaFiscalGateway sut;
 
     @BeforeEach
-    private void setup() {
+    void setup() {
         BuildProperties props = Mockito.mock(BuildProperties.class);
         Mockito.when(props.getVersion()).thenReturn("test.app.version");
         server = MockRestServiceServer.bindTo(restTemplate).build();
@@ -114,11 +115,11 @@ class UmkaFiscalGatewayTest {
         final var res = sut.selectDoc("12");
         // THEN
         assertThat(res).isNotNull();
-        assertThat(res.getStatus().getTaxNumber()).isEqualTo("7725225244");
-        assertThat(res.getStatus().getRegNumber()).isEqualTo("1693666568053977");
-        assertThat(res.getStatus().getSerialNumber()).isEqualTo("16999987");
-        assertThat(res.getStatus().getStorageNumber()).isEqualTo("9999078900003063");
-        assertThat(res.getStatus().getDocNumber()).isEqualTo("12");
+        assertThat(res.getDocument().getTaxNumber()).isEqualTo("7725225244");
+        assertThat(res.getDocument().getRegNumber()).isEqualTo("1693666568053977");
+        assertThat(res.getDocument().getSerialNumber()).isEqualTo("16999987");
+        assertThat(res.getDocument().getStorageNumber()).isEqualTo("9999078900003063");
+        assertThat(res.getDocument().getDocNumber()).isEqualTo("12");
     }
 
 }

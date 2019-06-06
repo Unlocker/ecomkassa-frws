@@ -43,14 +43,7 @@ public interface FiscalGateway {
     StatusResult status();
 
     /**
-     * Continues printing after the registrar failure or termination.
-     *
-     * @return status
-     */
-    StatusResult continuePrint();
-
-    /**
-     * Selects document by documentNumber
+     * Selects document by a document number
      *
      * @return status
      */

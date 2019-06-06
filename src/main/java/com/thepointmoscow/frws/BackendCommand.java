@@ -1,6 +1,7 @@
 package com.thepointmoscow.frws;
 
 import lombok.Data;
+import lombok.NonNull;
 import lombok.experimental.Accessors;
 
 @Data
@@ -8,6 +9,7 @@ import lombok.experimental.Accessors;
 public class BackendCommand {
     private BackendCommandType command;
     private Order order;
+    @NonNull
     private Long issueID;
     private String ccmID;
     private String documentNumber;
