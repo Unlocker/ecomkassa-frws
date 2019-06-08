@@ -84,8 +84,7 @@ public class LoggingFiscalGateway implements FiscalGateway {
                 .setRegNumber("1693666568053977")
                 .setSerialNumber("16999987")
                 .setStorageNumber("9999078900003063")
-                .setDocNumber("12")
-                .setPayload("");
+                .setDocNumber("12");
         return new SelectResult().setDocument(document);
     }
 }

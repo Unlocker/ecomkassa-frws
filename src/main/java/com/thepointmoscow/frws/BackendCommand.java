@@ -19,6 +19,9 @@ public class BackendCommand {
     private Order order;
     private String documentNumber;
 
+    public BackendCommand() {
+    }
+
     /**
      * Command types.
      */

@@ -2,6 +2,7 @@ package com.thepointmoscow.frws;
 
 import java.time.ZonedDateTime;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
@@ -46,7 +47,7 @@ public class SelectResult extends StatusResult {
         /**
          * Документ целиком, как был получен от кассового сервиса
          */
-        private String payload;
+        private JsonNode payload;
     }
 
 }

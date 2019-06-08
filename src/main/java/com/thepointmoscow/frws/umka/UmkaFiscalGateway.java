@@ -518,7 +518,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
                     .setSerialNumber(values.get(1013))
                     .setStorageNumber(values.get(1041))
                     .setDocNumber(values.get(1040))
-                    .setPayload(response.path("document").asText());
+                    .setPayload(response.path("document"));
             return selectResult.setDocument(status);
         } catch (Exception e) {
             log.error("Error parsing the response: {} | {}", responseStr, e.getMessage());
