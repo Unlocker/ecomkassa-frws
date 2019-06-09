@@ -1,45 +1,25 @@
 package com.thepointmoscow.frws.umka;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thepointmoscow.frws.*;
+import com.thepointmoscow.frws.exceptions.FrwsException;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thepointmoscow.frws.FiscalGateway;
-import com.thepointmoscow.frws.Order;
-import com.thepointmoscow.frws.PaymentMethod;
-import com.thepointmoscow.frws.PaymentObject;
-import com.thepointmoscow.frws.RegistrationResult;
-import com.thepointmoscow.frws.SelectResult;
-import com.thepointmoscow.frws.StatusResult;
-import com.thepointmoscow.frws.exceptions.FrwsException;
-
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.time.*;
+import java.util.*;
 import java.util.stream.Stream;
 
 import static com.thepointmoscow.frws.AgentType.AGENT_TYPE_FFD_TAG;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static java.util.Optional.ofNullable;
-
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * Fiscal gateway using "umka" devices.
@@ -102,11 +82,13 @@ public class UmkaFiscalGateway implements FiscalGateway {
         RegistrationResult registration = new RegistrationResult();
         try {
             JsonNode response = mapper.readTree(responseStr);
-            final var propsArr = response.path("document").path("data").path("fiscprops").iterator();
-            final var codes = new HashSet<>(Arrays.asList(1040, 1042));
+            final var propsArr = response.path("document").path("data").path("data").path("fiscprops").iterator();
+            final var codes = new HashSet<>(Arrays.asList(1040, 1042, 1038));
             final var values = new HashMap<Integer, Integer>();
             Optional<ZonedDateTime> regDate = Optional.empty();
             Optional<String> signature = Optional.empty();
+            Optional<String> inn = Optional.empty();
+            Optional<String> serialNumber = Optional.empty();
             while (propsArr.hasNext()) {
                 final var current = propsArr.next();
                 final int tag = current.get("tag").asInt();
@@ -122,13 +104,22 @@ public class UmkaFiscalGateway implements FiscalGateway {
                     signature = Optional.of(current.get("value").asText());
                     continue;
                 }
+                if (1018 == tag) {
+                    inn = Optional.of(current.get("value").asText());
+                    continue;
+                }
+                if (1013 == tag) {
+                    serialNumber = Optional.of(current.get("value").asText());
+                    continue;
+                }
                 if (codes.contains(tag)) {
                     values.put(tag, current.get("value").asInt());
                 }
             }
             final var documentNumber = ofNullable(values.get(1040));
             final var sessionCheck = ofNullable(values.get(1042));
-            if (Stream.of(regDate, signature, documentNumber, sessionCheck)
+            final var currentSession = ofNullable(values.get(1038));
+            if (Stream.of(regDate, signature, documentNumber, sessionCheck, inn, serialNumber, currentSession)
                     .anyMatch(opt -> !opt.isPresent())) {
                 throw new FrwsException(
                         String.format(
@@ -138,13 +129,27 @@ public class UmkaFiscalGateway implements FiscalGateway {
                         )
                 );
             }
+            StatusResult statusResult = new StatusResult()
+                    .setFrDateTime(regDate.get().toLocalDateTime())
+                    .setInn(inn.get())
+                    .setOnline(true)
+                    .setSerialNumber(serialNumber.get())
+                    .setModeFR(2)
+                    .setSubModeFR(0)
+                    .setErrorCode(0)
+                    .setStatusMessage(null)
+                    .setStatus(null)
+                    .setCurrentSession(currentSession.get())
+                    .setCurrentDocNumber(documentNumber.get())
+                    .setAppVersion(buildProperties.getVersion());
+
             final var regInfo = new RegistrationResult.Registration()
                     .setIssueID(issueID.toString())
                     .setRegDate(regDate.get())
                     .setDocNo(documentNumber.get().toString())
                     .setSignature(signature.get())
                     .setSessionCheck(sessionCheck.get());
-            return registration.setRegistration(regInfo);
+            return registration.setRegistration(regInfo).apply(statusResult);
         } catch (Exception e) {
             log.error("Error parsing the response: {} | {}", responseStr, e.getMessage());
             if (e instanceof FrwsException) {
