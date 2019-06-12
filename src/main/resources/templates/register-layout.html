@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<body>
+<div style="display: flex;flex-direction: row;">
+    <div id="register-layout">
+
+        <div th:replace="register-common :: register-common"></div>
+
+        <button type="submit" value="submit" class="btn-submit margin-5px" onclick="postRegisterData()">Получить
+        </button>
+    </div>
+    <div style="display: flex;flex-direction: column;">
+        <div class="info-label" style="display: none">Проверочный режим</div>
+        <pre id="response-body"><code></code></pre>
+    </div>
+</div>
+</body>
+</html>

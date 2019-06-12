@@ -1,5 +1,7 @@
 package com.thepointmoscow.frws.controllers;
 
+import com.thepointmoscow.frws.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.env.OriginTrackedMapPropertySource;
@@ -10,22 +12,12 @@ import org.springframework.core.env.Environment;
 import org.springframework.core.env.MutablePropertySources;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-
-import com.thepointmoscow.frws.BackendCommand;
-import com.thepointmoscow.frws.BackendGateway;
-import com.thepointmoscow.frws.FiscalGateway;
-import com.thepointmoscow.frws.SelectResult;
-import com.thepointmoscow.frws.StatusResult;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Properties;
 import java.util.stream.StreamSupport;
-
-import lombok.extern.slf4j.Slf4j;
 
 /**
  * API endpoint for fiscal manipulation.
@@ -114,4 +106,30 @@ public class FrwsController {
         return backend.status(ccmID, frGateway.status());
     }
 
+    @GetMapping("/register")
+    public String getRegister() {
+        return "register";
+    }
+
+    @GetMapping("/registerLayout")
+    public String getRegisterLayout() {
+        return "register-layout";
+    }
+
+    @PostMapping("/postRegisterData")
+    @ResponseBody
+    public String postRegisterData(@RequestBody Map<String, Object> data) {
+        return frGateway.fiscalize(data);
+    }
+
+    @GetMapping("/reRegisterLayout")
+    public String getReRegisterLayout() {
+        return "re-register-layout";
+    }
+
+    @PostMapping("/postReRegisterData")
+    @ResponseBody
+    public String postReRegisterData(@RequestBody Map<String, Object> data) {
+        return frGateway.fiscalize(data);
+    }
 }

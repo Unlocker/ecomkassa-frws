@@ -7,6 +7,7 @@ import com.thepointmoscow.frws.exceptions.FrwsException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -45,6 +46,8 @@ public class UmkaFiscalGateway implements FiscalGateway {
     private final RestTemplate restTemplate;
 
     private volatile RegInfo lastStatus;
+    @Autowired
+    private Random random;
 
     /**
      * Makes an URL using the host, port and an ending path.
@@ -533,5 +536,14 @@ public class UmkaFiscalGateway implements FiscalGateway {
                 throw new FrwsException(e);
             }
         }
+    }
+
+    @Override
+    public String fiscalize(Map<String, Object> data) {
+        data.put("sessionId", random.nextInt());
+        return getRestTemplate().postForObject(
+                makeUrl("fiscalize.json"),
+                new HttpEntity<>(data, generateHttpHeaders()),
+                String.class);
     }
 }

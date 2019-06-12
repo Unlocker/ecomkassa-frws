@@ -44,3 +44,7 @@ html, body {
 .btn-submit:hover {
     opacity: 0.7;
 }
+
+.margin-5px {
+    margin: 5px;
+}

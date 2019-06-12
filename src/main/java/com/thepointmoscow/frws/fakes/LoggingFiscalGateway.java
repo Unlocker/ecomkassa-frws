@@ -1,18 +1,15 @@
 package com.thepointmoscow.frws.fakes;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thepointmoscow.frws.*;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.info.BuildProperties;
-
-import com.thepointmoscow.frws.FiscalGateway;
-import com.thepointmoscow.frws.Order;
-import com.thepointmoscow.frws.RegistrationResult;
-import com.thepointmoscow.frws.SelectResult;
-import com.thepointmoscow.frws.StatusResult;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-
-import lombok.extern.slf4j.Slf4j;
+import java.util.Map;
 
 /**
  * Fiscal gateway that sends to log received requests.
@@ -86,5 +83,17 @@ public class LoggingFiscalGateway implements FiscalGateway {
                 .setStorageNumber("9999078900003063")
                 .setDocNumber("12");
         return new SelectResult().setDocument(document);
+    }
+
+    @Override
+    public String fiscalize(Map<String, Object> data) {
+        log.info("Status retrieval request received.");
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(status);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

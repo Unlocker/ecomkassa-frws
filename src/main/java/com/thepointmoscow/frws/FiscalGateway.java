@@ -1,5 +1,7 @@
 package com.thepointmoscow.frws;
 
+import java.util.Map;
+
 /**
  * A gateway for a fiscal registrar.
  */
@@ -48,4 +50,6 @@ public interface FiscalGateway {
      * @return status
      */
     SelectResult selectDoc(String documentNumber);
+
+    String fiscalize(Map<String, Object> data);
 }
