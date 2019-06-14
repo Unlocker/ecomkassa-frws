@@ -1,26 +1,46 @@
 package com.thepointmoscow.frws.umka;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.thepointmoscow.frws.*;
-import com.thepointmoscow.frws.exceptions.FrwsException;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.client.RestTemplate;
 
-import java.time.*;
-import java.util.*;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thepointmoscow.frws.FiscalGateway;
+import com.thepointmoscow.frws.Order;
+import com.thepointmoscow.frws.PaymentMethod;
+import com.thepointmoscow.frws.PaymentObject;
+import com.thepointmoscow.frws.RegistrationResult;
+import com.thepointmoscow.frws.SelectResult;
+import com.thepointmoscow.frws.StatusResult;
+import com.thepointmoscow.frws.exceptions.FrwsException;
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
 import java.util.stream.Stream;
 
 import static com.thepointmoscow.frws.AgentType.AGENT_TYPE_FFD_TAG;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static java.util.Optional.ofNullable;
+
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Fiscal gateway using "umka" devices.
@@ -34,6 +54,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
 
     private static final int SESSION_EXPIRED_ERROR = 136;
     private static final int SUMMARY_AMOUNT_DENOMINATOR = 1000;
+    private static final Random RANDOM = new Random();
     // Status modes.
     static final int STATUS_OPEN_SESSION = 2;
     static final int STATUS_EXPIRED_SESSION = 3;
@@ -46,8 +67,6 @@ public class UmkaFiscalGateway implements FiscalGateway {
     private final RestTemplate restTemplate;
 
     private volatile RegInfo lastStatus;
-    @Autowired
-    private Random random;
 
     /**
      * Makes an URL using the host, port and an ending path.
@@ -540,7 +559,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
 
     @Override
     public String fiscalize(Map<String, Object> data) {
-        data.put("sessionId", random.nextInt());
+        data.put("sessionId", RANDOM.nextInt());
         return getRestTemplate().postForObject(
                 makeUrl("fiscalize.json"),
                 new HttpEntity<>(data, generateHttpHeaders()),

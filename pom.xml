@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>ru.ecomkassa</groupId>
     <artifactId>fr-web-service</artifactId>
-    <version>0.3.5</version>
+    <version>0.3.6</version>
 
     <name>Fiscal registrar web service</name>
 
@@ -138,9 +138,17 @@
                 <version>2.1.4.RELEASE</version>
                 <executions>
                     <execution>
-                        <id>build-info</id>
+                        <id>generate-build-info</id>
+                        <phase>compile</phase>
                         <goals>
                             <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>default</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>repackage</goal>
                         </goals>
                     </execution>
                 </executions>
