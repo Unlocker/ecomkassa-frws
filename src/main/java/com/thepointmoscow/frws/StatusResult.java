@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 
 import lombok.Data;
 import lombok.experimental.Accessors;
+import org.thymeleaf.util.StringUtils;
+
+import static com.thepointmoscow.frws.umka.UmkaFiscalGateway.STATUS_EXPIRED_SESSION;
 
 @Data
 @Accessors(chain = true)
@@ -24,8 +27,10 @@ public class StatusResult {
     private LocalDateTime frDateTime;
     private String inn;
     private String serialNumber;
-    private int currentDocNumber;
-    private int currentSession;
+    private String regNumber;
+    private String storageNumber;
+    private Integer currentDocNumber;
+    private Integer currentSession;
     private int modeFR;
     private int subModeFR;
     private int errorCode;
@@ -40,5 +45,19 @@ public class StatusResult {
      */
     public boolean isSessionClosed() {
         return 3 == getModeFR();
+    }
+
+    /**
+     * Checks is device registered.
+     */
+    public boolean isRegistered() {
+        return currentDocNumber != null;
+    }
+
+    /**
+     * Checks is device contains a storage.
+     */
+    public boolean isStorageAttached() {
+        return !StringUtils.isEmptyOrWhitespace(storageNumber);
     }
 }

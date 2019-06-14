@@ -3,6 +3,7 @@ package com.thepointmoscow.frws.umka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thepointmoscow.frws.Order;
 import com.thepointmoscow.frws.UtilityConfig;
+import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,6 +77,7 @@ class UmkaFiscalGatewayTest {
         assertThat(res).isNotNull();
         assertThat(res.isOnline()).isTrue();
         assertThat(res.getModeFR()).isEqualTo(UmkaFiscalGateway.STATUS_EXPIRED_SESSION);
+        assertThat(res.isSessionClosed()).isTrue();
     }
 
     @Test
@@ -91,6 +93,7 @@ class UmkaFiscalGatewayTest {
         assertThat(res).isNotNull();
         assertThat(res.isOnline()).isTrue();
         assertThat(res.getModeFR()).isEqualTo(UmkaFiscalGateway.STATUS_OPEN_SESSION);
+        assertThat(res.isSessionClosed()).isFalse();
     }
 
     @Test
@@ -106,6 +109,7 @@ class UmkaFiscalGatewayTest {
         assertThat(res).isNotNull();
         assertThat(res.isOnline()).isTrue();
         assertThat(res.getModeFR()).isEqualTo(UmkaFiscalGateway.STATUS_CLOSED_SESSION);
+        assertThat(res.isSessionClosed()).isFalse();
     }
 
     @Test
@@ -157,6 +161,35 @@ class UmkaFiscalGatewayTest {
         assertThat(res.getStatusMessage()).isNull();
         assertThat(res.getAppVersion()).isEqualTo(props.getVersion());
         assertThat(res.getStatus()).isNull();
+        assertThat(res.isSessionClosed()).isFalse();
+    }
+
+    @Test
+    void shouldParseNotRegistered() throws IOException {
+        // GIVEN
+        final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/not-registered.json");
+        this.server.expect(requestTo(GET_STATUS_URL)).andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
+        // WHEN
+        val res = sut.status();
+        // THEN
+        assertThat(res.getCurrentDocNumber()).isNull();
+        assertThat(res.getCurrentSession()).isEqualTo(0);
+        assertThat(res.isRegistered()).isFalse();
+        assertThat(res.isStorageAttached()).isTrue();
+    }
+
+    @Test
+    void shouldParseNoStorage() throws IOException {
+        // GIVEN
+        final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/no-storage.json");
+        this.server.expect(requestTo(GET_STATUS_URL)).andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
+        // WHEN
+        val res = sut.status();
+        // THEN
+        assertThat(res.getCurrentDocNumber()).isNull();
+        assertThat(res.getCurrentSession()).isEqualTo(0);
+        assertThat(res.isRegistered()).isFalse();
+        assertThat(res.isStorageAttached()).isFalse();
     }
 
 }

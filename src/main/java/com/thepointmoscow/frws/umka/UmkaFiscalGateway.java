@@ -429,20 +429,25 @@ public class UmkaFiscalGateway implements FiscalGateway {
             result.setErrorCode(0);
             result.setCurrentDocNumber(
                     status.map(x -> x.path("fsStatus").path("lastDocNumber")).filter(JsonNode::isInt).map(JsonNode::asInt)
-                            .orElse(-1));
+                            .orElse(null));
             result.setCurrentSession(
-                    status.map(x -> x.path("cycleNumber")).filter(JsonNode::isInt).map(JsonNode::asInt).orElse(-1));
+                    status.map(x -> x.path("cycleNumber")).filter(JsonNode::isInt).map(JsonNode::asInt).orElse(null));
             final Optional<OffsetDateTime> timestamp = status.map(x -> x.get("dt").asText())
                     .map(x -> OffsetDateTime.parse(x, RFC_1123_DATE_TIME));
 
             result.setFrDateTime(timestamp.map(OffsetDateTime::toLocalDateTime).orElse(LocalDateTime.MIN));
             result.setOnline(true);
             final String inn = status.map(x -> x.path("userInn")).filter(node -> !node.isMissingNode())
-                    .map(JsonNode::asText).orElse("");
+                    .map(JsonNode::asText).orElse(null);
             result.setInn(inn);
-            final String regNumber = status.map(x -> x.get("regNumber").asText()).orElse("");
+            final String regNumber = status.map(x -> x.get("regNumber").asText()).orElse(null);
+            result.setRegNumber(regNumber);
             final int taxVariant = status.map(x -> x.path("taxes")).filter(JsonNode::isInt).map(JsonNode::asInt).orElse(0);
-
+            result.setStorageNumber(status.map(x -> x.path("fsStatus").path("fsNumber"))
+                    .filter(JsonNode::isTextual)
+                    .map(JsonNode::asText)
+                    .filter(s -> !s.isBlank())
+                    .orElse(null));
             boolean isOpen = status.map(x -> x.path("fsStatus").path("cycleIsOpen"))
                     .map(x -> x.isInt() && x.asInt() != 0).orElse(false);
 
