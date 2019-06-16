@@ -88,6 +88,10 @@ public class LoggingFiscalGateway implements FiscalGateway {
     @Override
     public String fiscalize(Map<String, Object> data) {
         log.info("Status retrieval request received.");
+        return serializeStatusToJson(status);
+    }
+
+    private String serializeStatusToJson(StatusResult status) {
         ObjectMapper mapper = new ObjectMapper();
         try {
             return mapper.writeValueAsString(status);
@@ -95,5 +99,10 @@ public class LoggingFiscalGateway implements FiscalGateway {
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public String selectDocAsIs(String documentId) {
+        return serializeStatusToJson(status);
     }
 }

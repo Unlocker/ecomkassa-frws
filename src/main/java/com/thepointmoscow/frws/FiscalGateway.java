@@ -52,4 +52,11 @@ public interface FiscalGateway {
     SelectResult selectDoc(String documentNumber);
 
     String fiscalize(Map<String, Object> data);
+
+    /**
+     * Selects document by a document number without checking any tags
+     *
+     * @return status
+     */
+    String selectDocAsIs(String documentId);
 }

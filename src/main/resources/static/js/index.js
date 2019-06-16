@@ -13,7 +13,7 @@ function getDocumentById() {
     var val = $("#document-number").val();
     if (val != null && val !== "") {
         $.safeGet("frws/document/" + val, function (fragment) {
-            $("#document-body").html(JSON.stringify(fragment, null, 3));
+            $("#document-body").html(JSON.stringify(JSON.parse(fragment), null, 3));
         })
     }
 }

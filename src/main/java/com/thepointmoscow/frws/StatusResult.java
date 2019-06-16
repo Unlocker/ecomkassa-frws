@@ -1,14 +1,11 @@
 package com.thepointmoscow.frws;
 
 import com.fasterxml.jackson.databind.JsonNode;
-
-import java.time.LocalDateTime;
-
 import lombok.Data;
 import lombok.experimental.Accessors;
 import org.thymeleaf.util.StringUtils;
 
-import static com.thepointmoscow.frws.umka.UmkaFiscalGateway.STATUS_EXPIRED_SESSION;
+import java.time.LocalDateTime;
 
 @Data
 @Accessors(chain = true)
@@ -44,7 +41,7 @@ public class StatusResult {
      * @return is session need to open
      */
     public boolean isSessionClosed() {
-        return 3 == getModeFR();
+        return 3 == modeFR;
     }
 
     /**

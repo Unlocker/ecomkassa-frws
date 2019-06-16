@@ -1,6 +1,9 @@
 package com.thepointmoscow.frws.controllers;
 
-import com.thepointmoscow.frws.*;
+import com.thepointmoscow.frws.BackendCommand;
+import com.thepointmoscow.frws.BackendGateway;
+import com.thepointmoscow.frws.FiscalGateway;
+import com.thepointmoscow.frws.StatusResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -64,8 +67,8 @@ public class FrwsController {
      */
     @GetMapping("/document/{documentId}")
     @ResponseBody
-    public SelectResult getDocumentById(@PathVariable(value = "documentId") String documentId) {
-        return frGateway.selectDoc(documentId);
+    public String getDocumentById(@PathVariable(value = "documentId") String documentId) {
+        return frGateway.selectDocAsIs(documentId);
     }
 
     @GetMapping("/settings")

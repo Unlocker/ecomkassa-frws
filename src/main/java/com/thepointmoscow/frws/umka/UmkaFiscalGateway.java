@@ -550,4 +550,9 @@ public class UmkaFiscalGateway implements FiscalGateway {
                 String.class);
         return response.getBody();
     }
+
+    @Override
+    public String selectDocAsIs(String documentId) {
+        return getRestTemplate().getForObject(makeUrl("fiscaldoc.json?number=" + documentId + "&print=1"), String.class);
+    }
 }
