@@ -49,11 +49,13 @@ public class UtilityConfig {
             RestTemplateBuilder builder,
             ClientHttpRequestInterceptor interceptor) {
 
-        return builder
+        RestTemplate restTemplate = builder
                 .basicAuthentication(UMKA_DEFAULT_LOGIN, UMKA_DEFAULT_PASSWORD)
                 .additionalInterceptors(interceptor)
                 .errorHandler(backendReportErrorHandler)
                 .build();
+        restTemplate.setRequestFactory(new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()));
+        return restTemplate;
     }
 
     @Bean
