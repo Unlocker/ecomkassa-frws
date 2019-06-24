@@ -1,291 +1,289 @@
 {
   "document": {
     "data": {
-      "data": {
-        "docNumber": 45,
-        "docType": 3,
-        "fiscprops": [
-          {
-            "printable": "г. Воронеж, ул. генерала Лизюкова, д.4",
-            "tag": 1009,
-            "value": "г. Воронеж, ул. генерала Лизюкова, д.4"
-          },
-          {
-            "caption": "ИНН",
-            "printable": "ИНН\t7725225244",
-            "tag": 1018,
-            "value": "7725225244"
-          },
-          {
-            "caption": "ИНН",
-            "printable": "ИНН\t7725225244",
-            "tag": 1077,
-            "value": "7725225244"
-          },
-          {
-            "caption": "ИНН",
-            "printable": "ИНН\t7725225244",
-            "tag": 1013,
-            "value": "7725225244"
-          },
-          {
-            "caption": "КАССИР",
-            "printable": "КАССИР\tКАССИР 2",
-            "tag": 1021,
-            "value": "КАССИР 2"
-          },
-          {
-            "printable": "ООО ВЕКТОР-М",
-            "tag": 1048,
-            "value": "ООО ВЕКТОР-М"
-          },
-          {
-            "caption": "МЕСТО РАСЧЕТОВ",
-            "printable": "МЕСТО РАСЧЕТОВ\tОфис 7",
-            "tag": 1187,
-            "value": "Офис 7"
-          },
-          {
-            "caption": "ЭЛ. АДР. ПОКУПАТЕЛЯ",
-            "printable": "ЭЛ. АДР. ПОКУПАТЕЛЯ\tcheck@yandex.ney",
-            "tag": 1008,
-            "value": "check@yandex.ney"
-          },
-          {
-            "printable": "11.08.17 17:33",
-            "tag": 1012,
-            "value": "11 Aug 2017 17:33:40 +0400"
-          },
-          {
-            "caption": "ИТОГ",
-            "printable": "ИТОГ\t595,68",
-            "tag": 1020,
-            "value": 59568
-          },
-          {
-            "caption": "СМЕНА",
-            "printable": "СМЕНА\t12",
-            "tag": 1038,
-            "value": 12
-          },
-          {
-            "caption": "ЧЕК",
-            "printable": "ЧЕК 1",
-            "tag": 1042,
-            "value": 1
-          },
-          {
-            "printable": "ПРИХОД",
-            "tag": 1054,
-            "value": 1
-          },
-          {
-            "caption": "СНО",
-            "printable": "СНО\tОСН",
-            "tag": 1055,
-            "value": 1
-          },
-          {
-            "fiscprops": [
-              {
-                "printable": "",
-                "tag": 1214,
-                "value": 4
-              },
-              {
-                "printable": "\tАВ",
-                "tag": 1212,
-                "value": 11
-              },
-              {
-                "printable": "Комиссия",
-                "tag": 1030,
-                "value": "Комиссия"
-              },
-              {
-                "printable": "31,30",
-                "tag": 1079,
-                "value": 3103
-              },
-              {
-                "printable": "1,000",
-                "tag": 1023,
-                "value": "1,000"
-              },
-              {
-                "caption": "",
-                "printable": "",
-                "tag": 1199,
-                "value": 6
-              },
-              {
-                "printable": "31,30",
-                "tag": 1043,
-                "value": 3103
-              }
-            ],
-            "tag": 1059
-          },
-          {
-            "fiscprops": [
-              {
-                "printable": "",
-                "tag": 1214,
-                "value": 4
-              },
-              {
-                "printable": "",
-                "tag": 1212,
-                "value": 4
-              },
-              {
-                "printable": "\tПЛ.АГЕНТ",
-                "tag": 1222,
-                "value": 4
-              },
-              {
-                "fiscprops": [
-                  {
-                    "caption": "ТЛФ. ПЛ. АГЕНТА",
-                    "printable": "ТЛФ. ПЛ. АГЕНТА\t11111",
-                    "tag": 1073,
-                    "value": "11111"
-                  },
-                  {
-                    "caption": "ТЛФ. ОП. ПР. ПЛАТЕЖА",
-                    "printable": "ТЛФ. ОП. ПР. ПЛАТЕЖА\t22222",
-                    "tag": 1074,
-                    "value": "22222"
-                  }
-                ],
-                "tag": 1223
-              },
-              {
-                "fiscprops": [
-                  {
-                    "caption": "ТЛФ. ПОСТ.",
-                    "printable": "ТЛФ. ПОСТ.\t33333",
-                    "tag": 1171,
-                    "value": "33333"
-                  },
-                  {
-                    "printable": "Avon",
-                    "tag": 1225,
-                    "value": "Avon"
-                  }
-                ],
-                "tag": 1224
-              },
-              {
-                "caption": "ИНН ПОСТАВЩИКА",
-                "printable": "ИНН ПОСТАВЩИКА\t7702203276",
-                "tag": 1226,
-                "value": "7702203276"
-              },
-              {
-                "printable": "Оплата Продукция по каталогам",
-                "tag": 1030,
-                "value": "Оплата Продукция по каталогам"
-              },
-              {
-                "printable": "шт.",
-                "tag": 1197,
-                "value": "шт."
-              },
-              {
-                "printable": "564,65",
-                "tag": 1079,
-                "value": 56465
-              },
-              {
-                "printable": "1,000",
-                "tag": 1023,
-                "value": "1,000"
-              },
-              {
-                "caption": "НДС 18%",
-                "printable": "НДС 18%",
-                "tag": 1199,
-                "value": 1
-              },
-              {
-                "printable": "564,65",
-                "tag": 1043,
-                "value": 56465
-              }
-            ],
-            "tag": 1059
-          },
-          {
-            "caption": "САЙТ ФНС",
-            "printable": "САЙТ ФНС\twww.nalog.ru",
-            "tag": 1060,
-            "value": "www.nalog.ru"
-          },
-          {
-            "fiscprops": [
-              {
-                "printable": "ФИО",
-                "tag": 1085,
-                "value": "ФИО"
-              },
-              {
-                "printable": "БАРИНОВ ЕВЛАМПИЙ КАСЬЯНОВИЧ",
-                "tag": 1086,
-                "value": "БАРИНОВ ЕВЛАМПИЙ КАСЬЯНОВИЧ"
-              }
-            ],
-            "tag": 1084
-          },
-          {
-            "caption": "ЭЛ. АДР. ОТПРАВИТЕЛЯ",
-            "printable": "ЭЛ. АДР. ОТПРАВИТЕЛЯ\ta@k.ru",
-            "tag": 1117,
-            "value": "a@k.ru"
-          },
-          {
-            "printable": "Я",
-            "tag": 1192,
-            "value": "Я"
-          },
-          {
-            "printable": "",
-            "tag": 1209,
-            "value": 2
-          },
-          {
-            "caption": "СДАЧА",
-            "printable": "СДАЧА\t904,32",
-            "tag": 3002,
-            "value": 90432
-          },
-          {
-            "caption": "ПРИНЯТО",
-            "printable": "ПРИНЯТО\t1500,00",
-            "tag": 3003,
-            "value": 150000
-          },
-          {
-            "caption": "РН ККТ",
-            "printable": "РН ККТ\t0000000001020321",
-            "tag": 1037,
-            "value": "0000000001020321"
-          },
-          {
-            "caption": "ФД",
-            "printable": "ФД\t45",
-            "tag": 1040,
-            "value": 45
-          },
-          {
-            "caption": "ФН",
-            "printable": "ФН\t9999078900002164",
-            "tag": 1041,
-            "value": "9999078900002164"
-          }
-        ],
-        "name": "Кассовый чек"
-      }
+      "docNumber": 45,
+      "docType": 3,
+      "fiscprops": [
+        {
+          "printable": "г. Воронеж, ул. генерала Лизюкова, д.4",
+          "tag": 1009,
+          "value": "г. Воронеж, ул. генерала Лизюкова, д.4"
+        },
+        {
+          "caption": "ИНН",
+          "printable": "ИНН\t7725225244",
+          "tag": 1018,
+          "value": "7725225244"
+        },
+        {
+          "caption": "ИНН",
+          "printable": "ИНН\t7725225244",
+          "tag": 1077,
+          "value": "7725225244"
+        },
+        {
+          "caption": "ИНН",
+          "printable": "ИНН\t7725225244",
+          "tag": 1013,
+          "value": "7725225244"
+        },
+        {
+          "caption": "КАССИР",
+          "printable": "КАССИР\tКАССИР 2",
+          "tag": 1021,
+          "value": "КАССИР 2"
+        },
+        {
+          "printable": "ООО ВЕКТОР-М",
+          "tag": 1048,
+          "value": "ООО ВЕКТОР-М"
+        },
+        {
+          "caption": "МЕСТО РАСЧЕТОВ",
+          "printable": "МЕСТО РАСЧЕТОВ\tОфис 7",
+          "tag": 1187,
+          "value": "Офис 7"
+        },
+        {
+          "caption": "ЭЛ. АДР. ПОКУПАТЕЛЯ",
+          "printable": "ЭЛ. АДР. ПОКУПАТЕЛЯ\tcheck@yandex.ney",
+          "tag": 1008,
+          "value": "check@yandex.ney"
+        },
+        {
+          "printable": "11.08.17 17:33",
+          "tag": 1012,
+          "value": "11 Aug 2017 17:33:40 +0400"
+        },
+        {
+          "caption": "ИТОГ",
+          "printable": "ИТОГ\t595,68",
+          "tag": 1020,
+          "value": 59568
+        },
+        {
+          "caption": "СМЕНА",
+          "printable": "СМЕНА\t12",
+          "tag": 1038,
+          "value": 12
+        },
+        {
+          "caption": "ЧЕК",
+          "printable": "ЧЕК 1",
+          "tag": 1042,
+          "value": 1
+        },
+        {
+          "printable": "ПРИХОД",
+          "tag": 1054,
+          "value": 1
+        },
+        {
+          "caption": "СНО",
+          "printable": "СНО\tОСН",
+          "tag": 1055,
+          "value": 1
+        },
+        {
+          "fiscprops": [
+            {
+              "printable": "",
+              "tag": 1214,
+              "value": 4
+            },
+            {
+              "printable": "\tАВ",
+              "tag": 1212,
+              "value": 11
+            },
+            {
+              "printable": "Комиссия",
+              "tag": 1030,
+              "value": "Комиссия"
+            },
+            {
+              "printable": "31,30",
+              "tag": 1079,
+              "value": 3103
+            },
+            {
+              "printable": "1,000",
+              "tag": 1023,
+              "value": "1,000"
+            },
+            {
+              "caption": "",
+              "printable": "",
+              "tag": 1199,
+              "value": 6
+            },
+            {
+              "printable": "31,30",
+              "tag": 1043,
+              "value": 3103
+            }
+          ],
+          "tag": 1059
+        },
+        {
+          "fiscprops": [
+            {
+              "printable": "",
+              "tag": 1214,
+              "value": 4
+            },
+            {
+              "printable": "",
+              "tag": 1212,
+              "value": 4
+            },
+            {
+              "printable": "\tПЛ.АГЕНТ",
+              "tag": 1222,
+              "value": 4
+            },
+            {
+              "fiscprops": [
+                {
+                  "caption": "ТЛФ. ПЛ. АГЕНТА",
+                  "printable": "ТЛФ. ПЛ. АГЕНТА\t11111",
+                  "tag": 1073,
+                  "value": "11111"
+                },
+                {
+                  "caption": "ТЛФ. ОП. ПР. ПЛАТЕЖА",
+                  "printable": "ТЛФ. ОП. ПР. ПЛАТЕЖА\t22222",
+                  "tag": 1074,
+                  "value": "22222"
+                }
+              ],
+              "tag": 1223
+            },
+            {
+              "fiscprops": [
+                {
+                  "caption": "ТЛФ. ПОСТ.",
+                  "printable": "ТЛФ. ПОСТ.\t33333",
+                  "tag": 1171,
+                  "value": "33333"
+                },
+                {
+                  "printable": "Avon",
+                  "tag": 1225,
+                  "value": "Avon"
+                }
+              ],
+              "tag": 1224
+            },
+            {
+              "caption": "ИНН ПОСТАВЩИКА",
+              "printable": "ИНН ПОСТАВЩИКА\t7702203276",
+              "tag": 1226,
+              "value": "7702203276"
+            },
+            {
+              "printable": "Оплата Продукция по каталогам",
+              "tag": 1030,
+              "value": "Оплата Продукция по каталогам"
+            },
+            {
+              "printable": "шт.",
+              "tag": 1197,
+              "value": "шт."
+            },
+            {
+              "printable": "564,65",
+              "tag": 1079,
+              "value": 56465
+            },
+            {
+              "printable": "1,000",
+              "tag": 1023,
+              "value": "1,000"
+            },
+            {
+              "caption": "НДС 18%",
+              "printable": "НДС 18%",
+              "tag": 1199,
+              "value": 1
+            },
+            {
+              "printable": "564,65",
+              "tag": 1043,
+              "value": 56465
+            }
+          ],
+          "tag": 1059
+        },
+        {
+          "caption": "САЙТ ФНС",
+          "printable": "САЙТ ФНС\twww.nalog.ru",
+          "tag": 1060,
+          "value": "www.nalog.ru"
+        },
+        {
+          "fiscprops": [
+            {
+              "printable": "ФИО",
+              "tag": 1085,
+              "value": "ФИО"
+            },
+            {
+              "printable": "БАРИНОВ ЕВЛАМПИЙ КАСЬЯНОВИЧ",
+              "tag": 1086,
+              "value": "БАРИНОВ ЕВЛАМПИЙ КАСЬЯНОВИЧ"
+            }
+          ],
+          "tag": 1084
+        },
+        {
+          "caption": "ЭЛ. АДР. ОТПРАВИТЕЛЯ",
+          "printable": "ЭЛ. АДР. ОТПРАВИТЕЛЯ\ta@k.ru",
+          "tag": 1117,
+          "value": "a@k.ru"
+        },
+        {
+          "printable": "Я",
+          "tag": 1192,
+          "value": "Я"
+        },
+        {
+          "printable": "",
+          "tag": 1209,
+          "value": 2
+        },
+        {
+          "caption": "СДАЧА",
+          "printable": "СДАЧА\t904,32",
+          "tag": 3002,
+          "value": 90432
+        },
+        {
+          "caption": "ПРИНЯТО",
+          "printable": "ПРИНЯТО\t1500,00",
+          "tag": 3003,
+          "value": 150000
+        },
+        {
+          "caption": "РН ККТ",
+          "printable": "РН ККТ\t0000000001020321",
+          "tag": 1037,
+          "value": "0000000001020321"
+        },
+        {
+          "caption": "ФД",
+          "printable": "ФД\t45",
+          "tag": 1040,
+          "value": 45
+        },
+        {
+          "caption": "ФН",
+          "printable": "ФН\t9999078900002164",
+          "tag": 1041,
+          "value": "9999078900002164"
+        }
+      ],
+      "name": "Кассовый чек"
     },
     "result": 0,
     "sessionId": "111111111111111111111111111118"

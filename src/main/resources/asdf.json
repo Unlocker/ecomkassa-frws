@@ -1,0 +1,141 @@
+{
+  "document": {
+    "data": {
+      "docNumber": 11,
+      "docType": 3,
+      "fiscprops": [
+        {
+          "printable": "Боровское шоссе, дом 2 а, корпус 2, кв 236",
+          "tag": 1009,
+          "value": "Боровское шоссе, дом 2 а, корпус 2, кв 236"
+        },
+        {
+          "caption": "ИНН",
+          "printable": "ИНН\t7708317992",
+          "tag": 1018,
+          "value": "7708317992"
+        },
+        {
+          "caption": "КАССИР",
+          "printable": "КАССИР\tКАССИР 1",
+          "tag": 1021,
+          "value": "КАССИР 1"
+        },
+        {
+          "printable": "ООО Зе Поинт",
+          "tag": 1048,
+          "value": "ООО Зе Поинт"
+        },
+        {
+          "caption": "МЕСТО РАСЧЕТОВ",
+          "printable": "МЕСТО РАСЧЕТОВ\tecomkassa.ru",
+          "tag": 1187,
+          "value": "ecomkassa.ru"
+        },
+        {
+          "printable": "17.06.19 00:31",
+          "tag": 1012,
+          "value": "17 Jun 2019 00:31:37 +0300"
+        },
+        {
+          "caption": "ИТОГ",
+          "printable": "ИТОГ\t1,00",
+          "tag": 1020,
+          "value": 100
+        },
+        {
+          "caption": "СМЕНА",
+          "printable": "СМЕНА\t3",
+          "tag": 1038,
+          "value": 3
+        },
+        {
+          "caption": "ЧЕК",
+          "printable": "ЧЕК 4",
+          "tag": 1042,
+          "value": 4
+        },
+        {
+          "printable": "ПРИХОД",
+          "tag": 1054,
+          "value": 1
+        },
+        {
+          "caption": "СНО",
+          "printable": "СНО\tУСН доход-расход",
+          "tag": 1055,
+          "value": 4
+        },
+        {
+          "tag": 1209,
+          "value": 2
+        },
+        {
+          "caption": "БЕЗНАЛИЧНЫМИ",
+          "printable": "БЕЗНАЛИЧНЫМИ\t1,00",
+          "tag": 1081,
+          "value": 100
+        },
+        {
+          "caption": "СУММА БЕЗ НДС",
+          "printable": "СУММА БЕЗ НДС\t1,00",
+          "tag": 1105,
+          "value": 100
+        },
+        {
+          "caption": "РН ККТ",
+          "printable": "РН ККТ\t0000000000045384",
+          "tag": 1037,
+          "value": "0000000000045384"
+        },
+        {
+          "caption": "ФД",
+          "printable": "ФД\t11",
+          "tag": 1040,
+          "value": 11
+        },
+        {
+          "caption": "ФН",
+          "printable": "ФН\t9999078900012205",
+          "tag": 1041,
+          "value": "9999078900012205"
+        },
+        {
+          "caption": "САЙТ ФНС",
+          "printable": "САЙТ ФНС\tnalog.ru",
+          "tag": 1060,
+          "value": "nalog.ru"
+        },
+        {
+          "caption": "ФП",
+          "printable": "ФП",
+          "tag": 1077,
+          "value": 452239776
+        },
+        {
+          "caption": "ЗН ККТ",
+          "printable": "ЗН ККТ\t17000574",
+          "tag": 1013,
+          "value": "17000574"
+        },
+        {
+          "caption": "ФФД ККТ",
+          "printable": "ФФД ККТ\t 1.05",
+          "tag": 1189,
+          "value": 2
+        },
+        {
+          "caption": "ЭЛ. АДР. ОТПРАВИТЕЛЯ",
+          "printable": "ЭЛ. АДР. ОТПРАВИТЕЛЯ\tsales@ecomkassa.ru",
+          "tag": 1117,
+          "value": "sales@ecomkassa.ru"
+        }
+      ],
+      "name": "Кассовый чек"
+    },
+    "result": 0,
+    "sessionId": "37051"
+  },
+  "protocol": 1,
+  "version": "1.0"
+}

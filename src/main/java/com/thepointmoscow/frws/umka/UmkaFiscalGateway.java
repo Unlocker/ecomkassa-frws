@@ -84,7 +84,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
         RegistrationResult registration = new RegistrationResult();
         try {
             JsonNode response = mapper.readTree(responseStr);
-            final var propsArr = response.path("document").path("data").path("data").path("fiscprops").iterator();
+            final var propsArr = response.path("document").path("data").path("fiscprops").iterator();
             final var codes = new HashSet<>(Arrays.asList(1040, 1042, 1038));
             final var values = new HashMap<Integer, Integer>();
             Optional<ZonedDateTime> regDate = Optional.empty();

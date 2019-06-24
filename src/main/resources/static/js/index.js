@@ -91,13 +91,13 @@ function postReRegisterData() {
     console.log();
     data.document.data.fiscprops.push(
         {
-            tag: 1057,
-            value: 1 << $('#param-update-reason option:selected').val()
-        },
+            tag: 1101,
+            value: $('#param-update-reason option:selected').val()
+        }/*,
         {
             tag: 1205,
             value: 1 << $('#param-update-reason-bit option:selected').val()
-        });
+        }*/);
 
     $.postJSON("frws/postReRegisterData", data, function (fragment) {
         $("#response-body").html(JSON.stringify(JSON.parse(fragment), null, 3));
@@ -188,6 +188,9 @@ function collectRegisterData() {
         return null;
     }
 
+    var reasonForAssigning = $('#reason-for-assigning option:selected').val();
+    reasonForAssigning = reasonForAssigning >= 0 ? 1 << reasonForAssigning : 0;
+
     return {
         document: {
             printOnly: checkMode ? 1 : 0,
@@ -275,7 +278,7 @@ function collectRegisterData() {
                     },
                     {
                         tag: 1057,
-                        value: 1 << $('#reason-for-assigning option:selected').val()
+                        value: reasonForAssigning
                     },
                     {
                         tag: 1062,
