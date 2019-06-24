@@ -393,6 +393,12 @@ public class UmkaFiscalGateway implements FiscalGateway {
     }
 
     @Override
+    public StatusResult closeArchive() {
+        getRestTemplate().getForObject(makeUrl("closefs.json?print=1"), String.class);
+        return status();
+    }
+
+    @Override
     public StatusResult cancelCheck() {
         throw new UnsupportedOperationException("cancelCheck");
     }

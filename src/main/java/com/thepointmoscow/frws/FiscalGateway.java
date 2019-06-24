@@ -31,6 +31,13 @@ public interface FiscalGateway {
     StatusResult closeSession();
 
     /**
+     * Makes an archive closing command.
+     *
+     * @return status
+     */
+    StatusResult closeArchive();
+
+    /**
      * Cancels a check.
      *
      * @return status

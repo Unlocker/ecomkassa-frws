@@ -103,6 +103,12 @@ public class FrwsController {
         return frGateway.closeSession();
     }
 
+    @GetMapping("/management/closeArchive")
+    @ResponseBody
+    public StatusResult managementCloseArchive() {
+        return frGateway.closeArchive();
+    }
+
     @GetMapping("/backend/status")
     @ResponseBody
     public BackendCommand backendStatus() {

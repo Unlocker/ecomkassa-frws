@@ -62,6 +62,12 @@ public class LoggingFiscalGateway implements FiscalGateway {
     }
 
     @Override
+    public StatusResult closeArchive() {
+        log.info("Archive closing request received.");
+        return status;
+    }
+
+    @Override
     public StatusResult cancelCheck() {
         log.info("Check canceling request received.");
         return status;
