@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<body>
+<div th:fragment="register-common" style="display: flex; flex-direction: column">
+    <input id="payment-address" type="text" required class="input-lg margin-5px" placeholder="Адрес расчетов">
+
+    <input id="inn" type="text" required class="input-lg margin-5px" placeholder="ИНН">
+
+    <input id="cashier" type="text" required class="input-lg margin-5px" placeholder="Кассир">
+
+    <input id="user-name" type="text" required class="input-lg margin-5px" placeholder="Наименование пользователя">
+
+    <input id="payment-place" type="text" required class="input-lg margin-5px" placeholder="Место расчетов">
+
+    <div>
+        <label for="auto-mode" class="margin-5px">Автоматический режим</label>
+        <input type="checkbox" id="auto-mode" name="auto-mode" class="margin-5px input-lg">
+    </div>
+
+    <div>
+        <label for="offline-mode" class="margin-5px">Автономного режима</label>
+        <input type="checkbox" id="offline-mode" name="offline-mode" class="margin-5px input-lg">
+    </div>
+
+    <input id="inn-ofd" type="text" required class="input-lg margin-5px" placeholder="ИНН ОФД">
+
+    <input id="ofd-name" type="text" required class="input-lg margin-5px" placeholder="Наименование ОФД">
+
+    <div>
+        <label for="encryption" class="margin-5px">Шифрование</label>
+        <input type="checkbox" id="encryption" name="encryption" class="margin-5px input-lg">
+    </div>
+
+    <input id="fns-site" type="text" required class="input-lg margin-5px" placeholder="Адрес сайта ФНС">
+
+    <div>
+        <label for="payment-only-internet" class="margin-5px">ККТ для расчетов только в Интернет</label>
+        <input type="checkbox" id="payment-only-internet" name="payment-only-internet" class="margin-5px input-lg">
+    </div>
+
+    <div>
+        <label for="payment-for-services" class="margin-5px">Расчет за услуги</label>
+        <input type="checkbox" id="payment-for-services" name="payment-for-services" class="margin-5px input-lg">
+    </div>
+
+    <div>
+        <label for="as-bso" class="margin-5px">АС БСО</label>
+        <input type="checkbox" id="as-bso" name="as-bso" class="margin-5px input-lg">
+    </div>
+
+    <input id="email-sender" type="text" required class="input-lg margin-5px"
+           placeholder="Электронная почта отправителя чека">
+
+    <div>
+        <label for="lottery" class="margin-5px">Проведение лотереи</label>
+        <input type="checkbox" id="lottery" name="lottery" class="margin-5px input-lg">
+    </div>
+
+    <div>
+        <label for="gambling" class="margin-5px">Проведение азартных игр</label>
+        <input type="checkbox" id="gambling" name="gambling" class="margin-5px input-lg">
+    </div>
+
+    <div>
+        <label for="excisable-goods" class="margin-5px">Подакцизный товара</label>
+        <input type="checkbox" id="excisable-goods" name="excisable-goods" class="margin-5px input-lg">
+    </div>
+
+    <div>
+        <label for="printer-in-machine" class="margin-5px">Принтер в автомате</label>
+        <input type="checkbox" id="printer-in-machine" name="printer-in-machine" class="margin-5px input-lg">
+    </div>
+
+    <input id="kkt-register-number" type="text" required class="input-lg margin-5px"
+           placeholder="Регистрационный номер ККТ">
+
+    <div>
+        <label for="check-mode" class="margin-5px">Проверочный режим</label>
+        <input type="checkbox" id="check-mode" name="check-mode" class="margin-5px input-lg">
+    </div>
+
+    <div class="margin-5px">
+        <label for="reason-for-assigning">Основание для присвоения кода реквизиту</label>
+        <div style="width: 350px;">
+            <select id="reason-for-assigning" name="reason-for-assigning">
+                <option value="-1"disabled selected></option>
+                <option value="0">Оказание услуг покупателю (клиенту) пользователем, являющимся банковским платежным
+                    агентом
+                </option>
+                <option value="1">Оказание услуг покупателю (клиенту) пользователем, являющимся банковским платежным
+                    субагентом
+                </option>
+                <option value="2">Оказание услуг покупателю (клиенту) пользователем, являющимся платежным агентом
+                </option>
+                <option value="3">Оказание услуг покупателю (клиенту) пользователем, являющимся платежным
+                    субагентом
+                </option>
+                <option value="4">Осуществление расчета с покупателем (клиентом) пользователем, являющимся
+                    поверенным
+                </option>
+                <option value="5">Осуществление расчета с покупателем (клиентом) пользователем, являющимся
+                    комиссионером
+                </option>
+                <option value="6">Осуществление расчета с покупателем (клиентом) пользователем, являющимся агентом и
+                    не являющимся банковским платежным агентом (субагентом), платежным агентом (субагентом),
+                    поверенным, комиссионером
+                </option>
+            </select>
+        </div>
+    </div>
+
+    <div class="margin-5px">
+        <label for="taxation-systems">Тип системы налогообложения</label>
+        <div style="width: 350px;">
+            <select id="taxation-systems" name="taxation-systems">
+                <option value="0">Общая</option>
+                <option value="1">Упрощенная доход</option>
+                <option value="2">Упрощенная доход минус расход</option>
+                <option value="3">Единый налог на вмененный доход</option>
+                <option value="4">Единый сельскохозяйственный налог</option>
+                <option value="5">Патентная система налогообложения</option>
+            </select>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            $('select').selectric();
+        });
+    </script>
+</div>
+</body>
+</html>

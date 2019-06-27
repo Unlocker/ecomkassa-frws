@@ -1,5 +1,9 @@
 package com.thepointmoscow.frws.umka;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thepointmoscow.frws.BackendGateway;
+import com.thepointmoscow.frws.BackendReportErrorHandler;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
@@ -16,12 +20,17 @@ public class WebTestConfig {
     }
 
     @Bean
+    BackendReportErrorHandler backendReportErrorHandler() {
+        return new BackendReportErrorHandler(new ObjectMapper());
+    }
+
+    @Bean
     @Qualifier("umka")
     public RestTemplate restTemplate(
             RestTemplateBuilder builder,
             ClientHttpRequestFactory factory,
             ClientHttpRequestInterceptor interceptor) {
 
-        return builder.basicAuthorization("1", "1").build();
+        return builder.basicAuthorization("1", "1").errorHandler(backendReportErrorHandler()).build();
     }
 }

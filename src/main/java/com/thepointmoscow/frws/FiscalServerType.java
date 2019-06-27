@@ -6,10 +6,6 @@ public enum FiscalServerType {
      */
     mock,
     /**
-     * Qkkm server
-     */
-    qkkm,
-    /**
      * Umka Standard server
      */
     umka

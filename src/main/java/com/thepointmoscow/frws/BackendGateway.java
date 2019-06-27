@@ -21,4 +21,24 @@ public interface BackendGateway {
      * @return command
      */
     BackendCommand register(String ccmID, RegistrationResult registration);
+
+    /**
+     * Sends error to backend.
+     *
+     * @param ccmID cash machine ID
+     * @param issueID command current issue
+     * @param resultError error
+     * @return command
+     */
+    BackendCommand error(String ccmID, Long issueID, FiscalResultError resultError);
+
+    /**
+     * Sends selected document to backed.
+     *
+     * @param select select
+     * @param ccmID cash machine ID
+     * @param issueID command current issue
+     * @return command
+     */
+    BackendCommand selectDoc(String ccmID, Long issueID, SelectResult select);
 }

@@ -4,10 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
 import org.springframework.http.client.ClientHttpRequestFactory;
@@ -25,6 +27,12 @@ import java.util.concurrent.ScheduledExecutorService;
 public class UtilityConfig {
     private static final String UMKA_DEFAULT_LOGIN = "1";
     private static final String UMKA_DEFAULT_PASSWORD = "1";
+    private final BackendReportErrorHandler backendReportErrorHandler;
+
+    @Autowired
+    public UtilityConfig(@Lazy BackendReportErrorHandler backendReportErrorHandler) {
+        this.backendReportErrorHandler = backendReportErrorHandler;
+    }
 
     @Bean
     public ClientHttpRequestFactory requestFactory() {
@@ -41,10 +49,26 @@ public class UtilityConfig {
             RestTemplateBuilder builder,
             ClientHttpRequestInterceptor interceptor) {
 
-        return builder
+        RestTemplate restTemplate = builder
+                .basicAuthentication(UMKA_DEFAULT_LOGIN, UMKA_DEFAULT_PASSWORD)
+                .additionalInterceptors(interceptor)
+                .errorHandler(backendReportErrorHandler)
+                .build();
+        restTemplate.setRequestFactory(requestFactory());
+        return restTemplate;
+    }
+
+    @Bean
+    public RestTemplate backendRestTemplate(
+            RestTemplateBuilder builder,
+            ClientHttpRequestInterceptor interceptor) {
+
+        RestTemplate restTemplate = builder
                 .basicAuthentication(UMKA_DEFAULT_LOGIN, UMKA_DEFAULT_PASSWORD)
                 .additionalInterceptors(interceptor)
                 .build();
+        restTemplate.setRequestFactory(requestFactory());
+        return restTemplate;
     }
 
     @Bean

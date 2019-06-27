@@ -1,5 +1,6 @@
 package com.thepointmoscow.frws;
 
+import com.thepointmoscow.frws.exceptions.FiscalException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
@@ -16,13 +17,13 @@ public class FetchTask implements Runnable {
     /**
      * A single fetch task.
      *
-     * @param backend backend
-     * @param fiscal fiscal gateway
+     * @param backend  backend
+     * @param fiscal   fiscal gateway
      * @param callback callback function
-     * @param ccms CCMs
+     * @param ccms     CCMs
      */
     public FetchTask(BackendGateway backend, FiscalGateway fiscal, BiConsumer<Runnable, Boolean> callback,
-            Collection<String> ccms) {
+                     Collection<String> ccms) {
         this.backend = backend;
         this.fiscal = fiscal;
         this.callback = callback;
@@ -52,18 +53,24 @@ public class FetchTask implements Runnable {
             status = fiscal.status();
             command = backend.status(ccmID, status);
             switch (command.getCommand()) {
-            case NONE:
-                return false;
-            case REGISTER:
-                RegistrationResult registration = fiscal
-                        .register(command.getOrder(), command.getIssueID(), 4 == status.getModeFR());
-                backend.register(ccmID, registration);
-                return true;
-            case CLOSE_SESSION:
-                fiscal.closeSession();
-                return false;
+                case NONE:
+                    return false;
+                case REGISTER:
+                    RegistrationResult registration = fiscal
+                            .register(command.getOrder(), command.getIssueID(), 4 == status.getModeFR());
+                    backend.register(ccmID, registration);
+                    return true;
+                case SELECT_DOC:
+                    SelectResult select = fiscal.selectDoc(command.getDocumentNumber());
+                    backend.selectDoc(ccmID, command.getIssueID(), select);
+                    return true;
+                case CLOSE_SESSION:
+                    fiscal.closeSession();
+                    return false;
             }
-        } catch (Exception e) {
+        } catch (FiscalException e){
+            backend.error(ccmID, command.getIssueID(), e.getFiscalResultError());
+        } catch(Exception e) {
             log.error("Error while processing own status ({}) or input command ({}). {}", status, command, e);
         }
         return false;

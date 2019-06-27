@@ -1,0 +1,15 @@
+.require-field {
+    border-color: red;
+}
+
+#register-layout {
+    display: flex;
+    flex-direction: column;
+    margin-right: 35px;
+}
+
+.info-label {
+    background-color: burlywood;
+    color: #245580;
+    text-align: center;
+}

@@ -1,5 +1,7 @@
 package com.thepointmoscow.frws;
 
+import java.util.Map;
+
 /**
  * A gateway for a fiscal registrar.
  */
@@ -29,6 +31,13 @@ public interface FiscalGateway {
     StatusResult closeSession();
 
     /**
+     * Makes an archive closing command.
+     *
+     * @return status
+     */
+    StatusResult closeArchive();
+
+    /**
      * Cancels a check.
      *
      * @return status
@@ -43,9 +52,18 @@ public interface FiscalGateway {
     StatusResult status();
 
     /**
-     * Continues printing after the registrar failure or termination.
+     * Selects document by a document number
      *
      * @return status
      */
-    StatusResult continuePrint();
+    SelectResult selectDoc(String documentNumber);
+
+    String fiscalize(Map<String, Object> data);
+
+    /**
+     * Selects document by a document number without checking any tags
+     *
+     * @return status
+     */
+    String selectDocAsIs(String documentId);
 }

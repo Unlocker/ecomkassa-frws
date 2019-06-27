@@ -1,14 +1,14 @@
 package com.thepointmoscow.frws;
 
 import com.google.common.base.Strings;
-import lombok.Data;
-import lombok.experimental.Accessors;
-import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import lombok.Data;
+import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 
 @Data
 @Accessors(chain = true)
@@ -48,6 +48,8 @@ public class Order {
     public static class Customer {
         private String phone;
         private String email;
+        private String name;
+        private String taxNumber;
 
         public String getId() {
             return !Strings.isNullOrEmpty(email) ? email : phone;
@@ -70,7 +72,7 @@ public class Order {
         private AgentInfo agent;
 
         public PaymentMethod paymentMethod() {
-            val paymentMethodDefault = PaymentMethod.FULL_PAYMENT;
+            final var paymentMethodDefault = PaymentMethod.FULL_PAYMENT;
             try {
                 return Optional.ofNullable(paymentMethod)
                         .map(PaymentMethod::valueOf)
@@ -86,7 +88,7 @@ public class Order {
         }
 
         public PaymentObject paymentObject() {
-            val paymentObjectDefault = PaymentObject.COMMODITY;
+            final var paymentObjectDefault = PaymentObject.COMMODITY;
             try {
                 return Optional.ofNullable(paymentObject)
                         .map(PaymentObject::valueOf)

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
 
 import javax.annotation.PreDestroy;
 import java.util.List;
@@ -16,7 +15,6 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @SpringBootApplication
-@ComponentScan(basePackages = "com.thepointmoscow.frws")
 @Slf4j
 public class App implements CommandLineRunner {
 
@@ -31,14 +29,14 @@ public class App implements CommandLineRunner {
     private final List<String> ccms;
 
     public static void main(String[] args) {
-        SpringApplication.run(App.class);
+        SpringApplication.run(App.class, args);
     }
 
     private final ScheduledExecutorService executor;
 
     @Autowired
     public App(ScheduledExecutorService executor, BackendGateway backend, FiscalGateway fiscal,
-            @Qualifier("ccms") List<String> ccms) {
+               @Qualifier("ccms") List<String> ccms) {
         this.executor = executor;
         this.backend = backend;
         this.fiscal = fiscal;

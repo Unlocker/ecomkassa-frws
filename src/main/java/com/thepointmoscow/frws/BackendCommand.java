@@ -1,15 +1,26 @@
 package com.thepointmoscow.frws;
 
 import lombok.Data;
+import lombok.NonNull;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true)
 public class BackendCommand {
+    @NonNull
     private BackendCommandType command;
-    private Order order;
+
+    @NonNull
     private Long issueID;
+
+    @NonNull
     private String ccmID;
+
+    private Order order;
+    private String documentNumber;
+
+    public BackendCommand() {
+    }
 
     /**
      * Command types.
@@ -26,6 +37,10 @@ public class BackendCommand {
         /**
          * Close a session.
          */
-        CLOSE_SESSION
+        CLOSE_SESSION,
+        /**
+         * Select a doc.
+         */
+        SELECT_DOC
     }
 }

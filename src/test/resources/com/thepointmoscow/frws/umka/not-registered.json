@@ -1,0 +1,43 @@
+{
+  "cashboxStatus": {
+    "cash": 0,
+    "cashBoxNumber": 1,
+    "cashier": 0,
+    "cycleNumber": 0,
+    "dt": "14 Jun 2019 22:17:10 +0300",
+    "flags": 8,
+    "fsStatus": {
+      "debugMode": true,
+      "fsNumber": "9999078900012492",
+      "fsVersion": "fn debug v 2.13",
+      "lifeTime": {
+        "availableRegistrations": 30
+      },
+      "phase": 1,
+      "transport": {
+        "docIsReading": true,
+        "firstDocDt": null,
+        "firstDocNumber": 0,
+        "offlineDocsCount": 0,
+        "state": 0
+      }
+    },
+    "introductions": 0,
+    "introductionsSum": 0,
+    "ipAddresses": "192.168.0.75",
+    "lastCheckNumber": 0,
+    "mode": 6,
+    "model": 200,
+    "modelstr": "УМКА-01-ФА",
+    "payouts": 0,
+    "payoutsSum": 0,
+    "regNumber": "0000000000045384",
+    "serial": "17000574",
+    "shortFlags": 0,
+    "subMode": 0,
+    "subver": 1,
+    "ver": 0
+  },
+  "protocol": 1,
+  "version": "1.0"
+}
