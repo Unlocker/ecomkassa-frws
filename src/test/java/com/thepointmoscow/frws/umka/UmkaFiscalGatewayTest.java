@@ -152,7 +152,6 @@ class UmkaFiscalGatewayTest {
         assertThat(res.getType()).isEqualTo("REGISTRATION");
         assertThat(res.isOnline()).isTrue();
         assertThat(res.getInn()).isEqualTo("7725225244");
-        assertThat(res.getSerialNumber()).isEqualTo("7725225244");
         assertThat(res.getCurrentDocNumber()).isEqualTo(45);
         assertThat(res.getCurrentSession()).isEqualTo(12);
         assertThat(res.getModeFR()).isEqualTo(2);

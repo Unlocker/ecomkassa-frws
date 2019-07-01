@@ -90,7 +90,6 @@ public class UmkaFiscalGateway implements FiscalGateway {
             Optional<ZonedDateTime> regDate = Optional.empty();
             Optional<String> signature = Optional.empty();
             Optional<String> inn = Optional.empty();
-            Optional<String> serialNumber = Optional.empty();
             while (propsArr.hasNext()) {
                 final var current = propsArr.next();
                 final int tag = current.get("tag").asInt();
@@ -107,11 +106,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
                     continue;
                 }
                 if (1018 == tag) {
-                    inn = Optional.of(current.get("value").asText());
-                    continue;
-                }
-                if (1013 == tag) {
-                    serialNumber = Optional.of(current.get("value").asText());
+                    inn = Optional.of(current.get("value")).map(JsonNode::asText);
                     continue;
                 }
                 if (codes.contains(tag)) {
@@ -121,8 +116,8 @@ public class UmkaFiscalGateway implements FiscalGateway {
             final var documentNumber = ofNullable(values.get(1040));
             final var sessionCheck = ofNullable(values.get(1042));
             final var currentSession = ofNullable(values.get(1038));
-            if (Stream.of(regDate, signature, documentNumber, sessionCheck, inn, serialNumber, currentSession)
-                    .anyMatch(opt -> !opt.isPresent())) {
+            if (Stream.of(regDate, signature, documentNumber, sessionCheck, currentSession)
+                    .anyMatch(Optional::isEmpty)) {
                 throw new FrwsException(
                         String.format(
                                 "There is missed one or several required attributes for ORDER_ID=%s, ISSUE_ID=%s."
@@ -133,9 +128,9 @@ public class UmkaFiscalGateway implements FiscalGateway {
             }
             StatusResult statusResult = new StatusResult()
                     .setFrDateTime(regDate.get().toLocalDateTime())
-                    .setInn(inn.get())
+                    .setInn(inn.orElse(getLastStatus().getInn()))
                     .setOnline(true)
-                    .setSerialNumber(serialNumber.get())
+                    .setSerialNumber(getLastStatus().getSerialNumber())
                     .setModeFR(2)
                     .setSubModeFR(0)
                     .setErrorCode(0)
@@ -414,10 +409,17 @@ public class UmkaFiscalGateway implements FiscalGateway {
             final var status = ofNullable(response.get("cashboxStatus"));
             result.setErrorCode(0);
             result.setCurrentDocNumber(
-                    status.map(x -> x.path("fsStatus").path("lastDocNumber")).filter(JsonNode::isInt).map(JsonNode::asInt)
+                    status.map(x -> x.path("fsStatus").path("lastDocNumber"))
+                            .filter(JsonNode::isInt)
+                            .map(JsonNode::asInt)
                             .orElse(null));
+
             result.setCurrentSession(
-                    status.map(x -> x.path("cycleNumber")).filter(JsonNode::isInt).map(JsonNode::asInt).orElse(null));
+                    status.map(x -> x.path("cycleNumber"))
+                            .filter(JsonNode::isInt)
+                            .map(JsonNode::asInt)
+                            .orElse(null));
+
             final Optional<OffsetDateTime> timestamp = status.map(x -> x.get("dt").asText())
                     .map(x -> OffsetDateTime.parse(x, RFC_1123_DATE_TIME));
 
@@ -425,6 +427,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
             result.setOnline(true);
             final String inn = status.map(x -> x.path("userInn")).filter(node -> !node.isMissingNode())
                     .map(JsonNode::asText).orElse(null);
+
             result.setInn(inn);
             final String regNumber = status.map(x -> x.get("regNumber").asText()).orElse(null);
             result.setRegNumber(regNumber);
@@ -434,6 +437,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
                     .map(JsonNode::asText)
                     .filter(s -> !s.isBlank())
                     .orElse(null));
+
             boolean isOpen = status.map(x -> x.path("fsStatus").path("cycleIsOpen"))
                     .map(x -> x.isInt() && x.asInt() != 0).orElse(false);
 
@@ -443,10 +447,15 @@ public class UmkaFiscalGateway implements FiscalGateway {
 
             result.setModeFR(statusMode(isOpen, timestamp, opened));
             result.setSubModeFR(0);
-            result.setSerialNumber(status.map(x -> x.get("serial").asText()).orElse(""));
+
+            String serialNumber = status.map(x -> x.path("serial"))
+                    .filter(JsonNode::isTextual)
+                    .map(JsonNode::asText)
+                    .orElse(null);
+            result.setSerialNumber(serialNumber);
             result.setStatusMessage(ofNullable(response.path("message")).map(JsonNode::asText).orElse(""));
             result.setStatus(response);
-            this.lastStatus = new RegInfo(inn, taxVariant, regNumber);
+            this.lastStatus = new RegInfo(inn, taxVariant, regNumber, serialNumber);
             return result;
         } catch (Exception e) {
             log.error("Error while reading a cashbox status. {}", e.getMessage());
