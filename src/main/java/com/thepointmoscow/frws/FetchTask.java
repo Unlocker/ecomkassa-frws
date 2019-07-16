@@ -4,6 +4,7 @@ import com.thepointmoscow.frws.exceptions.FiscalException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.BiConsumer;
 
 import static com.thepointmoscow.frws.BackendCommand.BackendCommandType.CLOSE_SESSION;
@@ -75,7 +76,16 @@ public class FetchTask implements Runnable {
                     return false;
             }
         } catch (FiscalException e) {
-            backend.error(ccmID, command.getIssueID(), e.getFiscalResultError());
+            BackendCommand response = backend.error(ccmID, command.getIssueID(), e.getFiscalResultError());
+            // if response contains a session closing command then execute it
+            if (
+                    Optional.ofNullable(response)
+                            .map(BackendCommand::getCommand)
+                            .filter(CLOSE_SESSION::equals)
+                            .isPresent()
+            ) {
+                fiscal.closeSession();
+            }
         } catch (Exception e) {
             log.error("Error while processing own status ({}) or input command ({}). {}", status, command, e);
         }
