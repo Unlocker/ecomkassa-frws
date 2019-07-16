@@ -6,6 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Collection;
 import java.util.function.BiConsumer;
 
+import static com.thepointmoscow.frws.BackendCommand.BackendCommandType.CLOSE_SESSION;
+
 @Slf4j
 public class FetchTask implements Runnable {
 
@@ -58,7 +60,11 @@ public class FetchTask implements Runnable {
                 case REGISTER:
                     RegistrationResult registration = fiscal
                             .register(command.getOrder(), command.getIssueID(), 4 == status.getModeFR());
-                    backend.register(ccmID, registration);
+                    BackendCommand registerResponse = backend.register(ccmID, registration);
+                    // if response contains a session closing command then execute it
+                    if (CLOSE_SESSION == registerResponse.getCommand()) {
+                        fiscal.closeSession();
+                    }
                     return true;
                 case SELECT_DOC:
                     SelectResult select = fiscal.selectDoc(command.getDocumentNumber());
@@ -68,9 +74,9 @@ public class FetchTask implements Runnable {
                     fiscal.closeSession();
                     return false;
             }
-        } catch (FiscalException e){
+        } catch (FiscalException e) {
             backend.error(ccmID, command.getIssueID(), e.getFiscalResultError());
-        } catch(Exception e) {
+        } catch (Exception e) {
             log.error("Error while processing own status ({}) or input command ({}). {}", status, command, e);
         }
         return false;
