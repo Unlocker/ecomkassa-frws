@@ -214,6 +214,10 @@ public class UmkaFiscalGateway implements FiscalGateway {
         maybeCustomer.map(Order.Customer::getTaxNumber)
                 .map(customerTaxNo -> new FiscalProperty().setTag(1228).setValue(customerTaxNo))
                 .ifPresent(tags::add);
+        // additional property
+        ofNullable(order.getAdditionalCheckProperty())
+                .map(prop -> new FiscalProperty().setTag(1192).setValue(prop))
+                .ifPresent(tags::add);
 
         for (Order.Item i : order.getItems()) {
             List<FiscalProperty> itemTags = new LinkedList<>();

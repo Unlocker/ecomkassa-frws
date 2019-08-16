@@ -24,6 +24,7 @@ public class Order {
     private List<Payment> payments = Collections.emptyList();
     private Boolean isElectronic;
     private Correction correction;
+    private String additionalCheckProperty;
 
     @Data
     @Accessors(chain = true)
