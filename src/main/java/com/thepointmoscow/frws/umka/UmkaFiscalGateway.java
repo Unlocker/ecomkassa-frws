@@ -214,6 +214,10 @@ public class UmkaFiscalGateway implements FiscalGateway {
         maybeCustomer.map(Order.Customer::getTaxNumber)
                 .map(customerTaxNo -> new FiscalProperty().setTag(1228).setValue(customerTaxNo))
                 .ifPresent(tags::add);
+        // additional property
+        ofNullable(order.getAdditionalCheckProperty())
+                .map(prop -> new FiscalProperty().setTag(1192).setValue(prop))
+                .ifPresent(tags::add);
 
         for (Order.Item i : order.getItems()) {
             List<FiscalProperty> itemTags = new LinkedList<>();
@@ -243,6 +247,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
             ofNullable(i.getUserData())
                     .map(it -> new FiscalProperty().setTag(1191).setValue(it))
                     .ifPresent(itemTags::add);
+
             // supplier information
             ofNullable(i.getSupplier()).ifPresent(suppInfo -> {
                 List<FiscalProperty> suppProps = new LinkedList<>();
@@ -254,11 +259,14 @@ public class UmkaFiscalGateway implements FiscalGateway {
                 ofNullable(suppInfo.getSupplierName()).ifPresent(
                         it -> suppProps.add(new FiscalProperty().setTag(1225).setValue(it))
                 );
-                ofNullable(suppInfo.getSupplierInn()).ifPresent(
-                        it -> suppProps.add(new FiscalProperty().setTag(1226).setValue(it))
-                );
                 itemTags.add(new FiscalProperty().setTag(1224).setFiscprops(suppProps));
+
+                // supplier tax number writes directly to item tags
+                ofNullable(suppInfo.getSupplierInn())
+                        .map(it -> new FiscalProperty().setTag(1226).setValue(it))
+                        .ifPresent(itemTags::add);
             });
+
             // agent information
             ofNullable(i.getAgent()).ifPresent(agent -> {
                 ofNullable(agent.getAgentType())
