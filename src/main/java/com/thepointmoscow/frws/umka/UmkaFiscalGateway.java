@@ -39,6 +39,10 @@ public class UmkaFiscalGateway implements FiscalGateway {
     static final int STATUS_OPEN_SESSION = 2;
     static final int STATUS_EXPIRED_SESSION = 3;
     static final int STATUS_CLOSED_SESSION = 4;
+    /**
+     * The maximal length of an item name.
+     */
+    private static final int MAX_ITEM_NAME_LENGTH = 128;
 
     private final String umkaHost;
     private final int umkaPort;
@@ -233,7 +237,10 @@ public class UmkaFiscalGateway implements FiscalGateway {
                             .setTag(paymentObject.getFfdTag())
                             .setValue(paymentObject.getCode())
             );
-            itemTags.add(new FiscalProperty().setTag(1030).setValue(i.getName()));
+            Optional.of(i.getName())
+                    .map(name -> (name.length() <= MAX_ITEM_NAME_LENGTH ? name : name.substring(0, MAX_ITEM_NAME_LENGTH)))
+                    .map(name -> new FiscalProperty().setTag(1030).setValue(name))
+                    .ifPresent(itemTags::add);
             itemTags.add(new FiscalProperty().setTag(1079).setValue(i.getPrice()));
             itemTags.add(new FiscalProperty().setTag(1023)
                     .setValue(String.format("%.3f", ((double) i.getAmount()) / SUMMARY_AMOUNT_DENOMINATOR)));
