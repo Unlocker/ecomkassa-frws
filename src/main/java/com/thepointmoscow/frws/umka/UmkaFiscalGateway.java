@@ -3,6 +3,7 @@ package com.thepointmoscow.frws.umka;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thepointmoscow.frws.*;
+import com.thepointmoscow.frws.exceptions.FiscalException;
 import com.thepointmoscow.frws.exceptions.FrwsException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -81,13 +82,26 @@ public class UmkaFiscalGateway implements FiscalGateway {
         Map<String, Object> request = isCorrection ? correctionOrder(order, issueID) : regularOrder(order, issueID);
 
         String responseStr = getRestTemplate().postForObject(
-                makeUrl("fiscalcheck.json"),
-                new HttpEntity<>(request, generateHttpHeaders()),
-                String.class);
+                makeUrl("fiscalcheck.json")
+                , new HttpEntity<>(request, generateHttpHeaders())
+                , String.class
+        );
 
         RegistrationResult registration = new RegistrationResult();
         try {
             JsonNode response = mapper.readTree(responseStr);
+            int errorCode = ofNullable(response.path("document").path("result"))
+                    .filter(JsonNode::isInt)
+                    .map(JsonNode::asInt)
+                    .orElse(0);
+
+            if (errorCode != 0) {
+                String errorMessage = ofNullable(response.path("document").path("message").path("resultDescription"))
+                        .filter(JsonNode::isTextual)
+                        .map(JsonNode::asText)
+                        .orElseGet(() -> String.format("An error with code %d has no description", errorCode));
+                throw new FiscalException(new FiscalResultError(errorCode, errorMessage));
+            }
             final var propsArr = response.path("document").path("data").path("fiscprops").iterator();
             final var codes = new HashSet<>(Arrays.asList(1040, 1042, 1038));
             final var values = new HashMap<Integer, Integer>();
