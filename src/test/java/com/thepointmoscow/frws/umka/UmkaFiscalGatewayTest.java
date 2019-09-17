@@ -3,6 +3,7 @@ package com.thepointmoscow.frws.umka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thepointmoscow.frws.Order;
 import com.thepointmoscow.frws.UtilityConfig;
+import com.thepointmoscow.frws.exceptions.FiscalException;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -24,6 +25,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
@@ -34,6 +36,7 @@ class UmkaFiscalGatewayTest {
     private static final String GET_STATUS_URL = "http://TEST_HOST:54321/cashboxstatus.json";
     private static final String GET_SELECT_URL = "http://TEST_HOST:54321/fiscaldoc.json?number=12&print=1";
     private static final String POST_REGISTER_URL = "http://TEST_HOST:54321/fiscalcheck.json";
+    private static final MediaType CONTENT_TYPE = MediaType.valueOf("text/plain;charset=UTF-8");
 
     private MockRestServiceServer server;
 
@@ -70,7 +73,7 @@ class UmkaFiscalGatewayTest {
         final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/expired-session.json");
 
         this.server.expect(requestTo(GET_STATUS_URL))
-                .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
+                .andRespond(withSuccess(body, CONTENT_TYPE));
         // WHEN
         final var res = sut.status();
         // THEN
@@ -86,7 +89,7 @@ class UmkaFiscalGatewayTest {
         final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/open-session.json");
 
         this.server.expect(requestTo(GET_STATUS_URL))
-                .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
+                .andRespond(withSuccess(body, CONTENT_TYPE));
         // WHEN
         final var res = sut.status();
         // THEN
@@ -101,8 +104,7 @@ class UmkaFiscalGatewayTest {
         // GIVEN
         final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/closed-session.json");
 
-        this.server.expect(requestTo(GET_STATUS_URL))
-                .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
+        this.server.expect(requestTo(GET_STATUS_URL)).andRespond(withSuccess(body, CONTENT_TYPE));
         // WHEN
         final var res = sut.status();
         // THEN
@@ -117,8 +119,7 @@ class UmkaFiscalGatewayTest {
         // GIVEN
         final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/fiscaldoc.json");
 
-        this.server.expect(requestTo(GET_SELECT_URL))
-                .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
+        this.server.expect(requestTo(GET_SELECT_URL)).andRespond(withSuccess(body, CONTENT_TYPE));
         // WHEN
         final var res = sut.selectDoc("12");
         // THEN
@@ -133,13 +134,11 @@ class UmkaFiscalGatewayTest {
     @Test
     void shouldRegister() throws IOException {
         // GIVEN
-        final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/fiscalcheck.json");
-
         this.server.expect(requestTo(GET_STATUS_URL))
-                .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
+                .andRespond(withSuccess(getBodyFromFile("/com/thepointmoscow/frws/umka/open-session.json"), CONTENT_TYPE));
 
         this.server.expect(requestTo(POST_REGISTER_URL))
-                .andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
+                .andRespond(withSuccess(getBodyFromFile("/com/thepointmoscow/frws/umka/fiscalcheck.json"), CONTENT_TYPE));
         // WHEN
         final var res = sut.register(new Order().setSaleCharge("SALE"), 1L, false);
 
@@ -167,7 +166,7 @@ class UmkaFiscalGatewayTest {
     void shouldParseNotRegistered() throws IOException {
         // GIVEN
         final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/not-registered.json");
-        this.server.expect(requestTo(GET_STATUS_URL)).andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
+        this.server.expect(requestTo(GET_STATUS_URL)).andRespond(withSuccess(body, CONTENT_TYPE));
         // WHEN
         val res = sut.status();
         // THEN
@@ -181,7 +180,7 @@ class UmkaFiscalGatewayTest {
     void shouldParseNoStorage() throws IOException {
         // GIVEN
         final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/no-storage.json");
-        this.server.expect(requestTo(GET_STATUS_URL)).andRespond(withSuccess(body, MediaType.TEXT_PLAIN));
+        this.server.expect(requestTo(GET_STATUS_URL)).andRespond(withSuccess(body, CONTENT_TYPE));
         // WHEN
         val res = sut.status();
         // THEN
@@ -189,6 +188,24 @@ class UmkaFiscalGatewayTest {
         assertThat(res.getCurrentSession()).isEqualTo(0);
         assertThat(res.isRegistered()).isFalse();
         assertThat(res.isStorageAttached()).isFalse();
+    }
+
+    @Test
+    void shouldThrowFiscalError() throws IOException {
+        // GIVEN
+        this.server.expect(requestTo(GET_STATUS_URL))
+                .andRespond(withSuccess(getBodyFromFile("/com/thepointmoscow/frws/umka/open-session.json"), CONTENT_TYPE));
+
+        this.server.expect(requestTo(POST_REGISTER_URL))
+                .andRespond(withSuccess(getBodyFromFile("/com/thepointmoscow/frws/umka/fiscal-error.json"), CONTENT_TYPE));
+        // WHEN
+        assertThatThrownBy(() -> sut.register(new Order().setSaleCharge("SALE"), 1L, false))
+                .isInstanceOf(FiscalException.class)
+                .extracting(ex -> ((FiscalException) ex).getFiscalResultError())
+                .hasFieldOrPropertyWithValue("errorCode", 102)
+                .hasFieldOrPropertyWithValue("statusMessage", "Ошибка транспортного соединения ФН")
+        ;
+        // THEN
     }
 
 }
