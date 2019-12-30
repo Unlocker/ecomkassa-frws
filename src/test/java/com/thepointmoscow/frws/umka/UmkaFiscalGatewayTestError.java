@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,7 +32,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {UtilityConfig.class, WebTestConfig.class})
+@ContextConfiguration(classes = {UtilityConfig.class})
 class UmkaFiscalGatewayTestError {
 
     private static final String GET_STATUS_URL = "http://TEST_HOST:54321/cashboxstatus.json";
@@ -46,7 +45,6 @@ class UmkaFiscalGatewayTestError {
     private ObjectMapper mapper;
 
     @Autowired
-    @Qualifier("umka")
     private RestTemplate restTemplate;
 
     private UmkaFiscalGateway umkaFiscalGateway;

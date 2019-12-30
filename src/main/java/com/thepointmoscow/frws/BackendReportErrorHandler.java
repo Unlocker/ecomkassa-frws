@@ -6,6 +6,7 @@ import com.thepointmoscow.frws.exceptions.FiscalException;
 import com.thepointmoscow.frws.exceptions.FrwsException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResponseErrorHandler;
@@ -27,8 +28,8 @@ public class BackendReportErrorHandler implements ResponseErrorHandler {
 
     @Override
     public boolean hasError(ClientHttpResponse httpResponse) throws IOException {
-        return httpResponse.getStatusCode().series() == CLIENT_ERROR
-                || httpResponse.getStatusCode().series() == SERVER_ERROR;
+        HttpStatus.Series series = httpResponse.getStatusCode().series();
+        return series == CLIENT_ERROR || series == SERVER_ERROR;
     }
 
     @Override
