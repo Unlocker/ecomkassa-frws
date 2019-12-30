@@ -203,9 +203,11 @@ public class UmkaFiscalGateway implements FiscalGateway {
 
         final var info = getLastStatus();
         // Registration number, Tax identifier, Tax Variant
+        final Order.Firm firm = order.getFirm();
         tags.add(new FiscalProperty().setTag(1037).setValue(info.getRegNumber()));
-        tags.add(new FiscalProperty().setTag(1018).setValue(info.getInn()));
-        tags.add(new FiscalProperty().setTag(1055).setValue(info.getTaxVariant()));
+        tags.add(new FiscalProperty().setTag(1018).setValue(firm.getTaxIdentityNumber()));
+        tags.add(new FiscalProperty().setTag(1187).setValue(firm.getAddress()));
+        tags.add(new FiscalProperty().setTag(1055).setValue(firm.getTaxVariant().getFfdCode()));
         // check total
         order.getPayments().stream()
                 .map(payment -> new FiscalProperty()

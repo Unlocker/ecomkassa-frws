@@ -30,6 +30,9 @@ public class Order {
     @Accessors(chain = true)
     public static class Firm {
         private String timezone;
+        private TaxVariant taxVariant;
+        private String address;
+        private String taxIdentityNumber;
     }
 
     @Data
