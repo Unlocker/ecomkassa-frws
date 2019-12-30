@@ -2,6 +2,7 @@ package com.thepointmoscow.frws.umka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thepointmoscow.frws.Order;
+import com.thepointmoscow.frws.TaxVariant;
 import com.thepointmoscow.frws.UtilityConfig;
 import com.thepointmoscow.frws.exceptions.FiscalException;
 import lombok.val;
@@ -11,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ContextConfiguration;
@@ -30,7 +30,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {UtilityConfig.class, WebTestConfig.class})
+@ContextConfiguration(classes = {UtilityConfig.class})
 class UmkaFiscalGatewayTest {
 
     private static final String GET_STATUS_URL = "http://TEST_HOST:54321/cashboxstatus.json";
@@ -44,7 +44,6 @@ class UmkaFiscalGatewayTest {
     private ObjectMapper mapper;
 
     @Autowired
-    @Qualifier("umka")
     private RestTemplate restTemplate;
 
     private UmkaFiscalGateway sut;
@@ -140,7 +139,7 @@ class UmkaFiscalGatewayTest {
         this.server.expect(requestTo(POST_REGISTER_URL))
                 .andRespond(withSuccess(getBodyFromFile("/com/thepointmoscow/frws/umka/fiscalcheck.json"), CONTENT_TYPE));
         // WHEN
-        final var res = sut.register(new Order().setSaleCharge("SALE"), 1L, false);
+        final var res = sut.register(generateOrder(), 1L, false);
 
         // THEN
         assertThat(res).isNotNull();
@@ -199,13 +198,24 @@ class UmkaFiscalGatewayTest {
         this.server.expect(requestTo(POST_REGISTER_URL))
                 .andRespond(withSuccess(getBodyFromFile("/com/thepointmoscow/frws/umka/fiscal-error.json"), CONTENT_TYPE));
         // WHEN
-        assertThatThrownBy(() -> sut.register(new Order().setSaleCharge("SALE"), 1L, false))
+        assertThatThrownBy(() -> sut.register(generateOrder(), 1L, false))
                 .isInstanceOf(FiscalException.class)
                 .extracting(ex -> ((FiscalException) ex).getFiscalResultError())
                 .hasFieldOrPropertyWithValue("errorCode", 102)
                 .hasFieldOrPropertyWithValue("statusMessage", "Ошибка транспортного соединения ФН")
         ;
         // THEN
+    }
+
+    private Order generateOrder() {
+        return new Order()
+                .setSaleCharge("SALE")
+                .setFirm(
+                        new Order.Firm()
+                        .setTaxVariant(TaxVariant.GENERAL)
+                        .setAddress("г. Тараканов")
+                        .setTaxIdentityNumber("1234567890")
+                );
     }
 
 }

@@ -26,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Integration tests for an Umka fiscal gateway.
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {UtilityConfig.class, WebTestConfig.class})
+@ContextConfiguration(classes = {UtilityConfig.class})
 @Disabled("Integration tests")
 class UmkaFiscalGatewayIT {
 
@@ -35,7 +35,6 @@ class UmkaFiscalGatewayIT {
     private static final String APP_VERSION = "1.2.3-test";
 
     @Autowired
-    @Qualifier("umka")
     private RestTemplate restTemplate;
 
     private UmkaFiscalGateway sut;

@@ -3,6 +3,7 @@ package com.thepointmoscow.frws.umka;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thepointmoscow.frws.FiscalResultError;
 import com.thepointmoscow.frws.Order;
+import com.thepointmoscow.frws.TaxVariant;
 import com.thepointmoscow.frws.UtilityConfig;
 import com.thepointmoscow.frws.exceptions.FiscalException;
 import org.apache.commons.io.IOUtils;
@@ -12,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -33,7 +33,7 @@ import static org.springframework.test.web.client.match.MockRestRequestMatchers.
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {UtilityConfig.class, WebTestConfig.class})
+@ContextConfiguration(classes = {UtilityConfig.class})
 class UmkaFiscalGatewayTestError {
 
     private static final String GET_STATUS_URL = "http://TEST_HOST:54321/cashboxstatus.json";
@@ -46,7 +46,6 @@ class UmkaFiscalGatewayTestError {
     private ObjectMapper mapper;
 
     @Autowired
-    @Qualifier("umka")
     private RestTemplate restTemplate;
 
     private UmkaFiscalGateway umkaFiscalGateway;
@@ -153,7 +152,12 @@ class UmkaFiscalGatewayTestError {
 
     private Order generateTemplateOrder() {
         Order order = new Order().set_id(1L).setOrderType("CASH_VOUCHER").setStatus("PAID").setSaleCharge("SALE");
-        order.setFirm(new Order.Firm().setTimezone("Europe/Moscow"));
+        order.setFirm(
+                new Order.Firm()
+                        .setTimezone("Europe/Moscow")
+                        .setAddress("дер. Пупыркино, д. 32")
+                        .setTaxVariant(TaxVariant.GENERAL)
+        );
         order.setCashier(new Order.Cashier().setFirstName("Имя").setLastName("Фамилия"));
         order.setCustomer(new Order.Customer().setEmail("customer@example.com"));
         order.setItems(Collections.singletonList(

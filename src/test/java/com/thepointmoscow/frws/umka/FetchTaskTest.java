@@ -16,7 +16,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {UtilityConfig.class, WebTestConfig.class})
+@ContextConfiguration(classes = {UtilityConfig.class})
 public class FetchTaskTest {
 
     public static final String CCM_ID = "1";

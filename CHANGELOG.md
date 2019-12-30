@@ -1,3 +1,7 @@
+### 0.4.9 (2019-12-30)
+
+1. Added parsing for tax identity number, payment address and tax variant
+
 ### 0.4.8 (2019-09-18)
 
 1. Fixed an order registration error parsing
