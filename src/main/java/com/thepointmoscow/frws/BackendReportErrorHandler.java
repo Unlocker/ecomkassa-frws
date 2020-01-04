@@ -5,10 +5,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thepointmoscow.frws.exceptions.FiscalException;
 import com.thepointmoscow.frws.exceptions.FrwsException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.client.ClientHttpResponse;
-import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResponseErrorHandler;
 
 import java.io.IOException;
@@ -16,12 +14,10 @@ import java.io.IOException;
 import static org.springframework.http.HttpStatus.Series.CLIENT_ERROR;
 import static org.springframework.http.HttpStatus.Series.SERVER_ERROR;
 
-@Component
 @Slf4j
 public class BackendReportErrorHandler implements ResponseErrorHandler {
     private final ObjectMapper mapper;
 
-    @Autowired
     public BackendReportErrorHandler(ObjectMapper mapper) {
         this.mapper = mapper;
     }

@@ -1,3 +1,7 @@
+### 0.4.10 (2020-01-05)
+
+1. Fixed a duplicated bean definition
+
 ### 0.4.9 (2019-12-30)
 
 1. Added parsing for tax identity number, payment address and tax variant

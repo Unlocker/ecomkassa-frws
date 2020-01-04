@@ -32,23 +32,21 @@ public class UtilityConfig {
 
     @Bean
     public RestTemplate restTemplate(ResponseErrorHandler backendReportErrorHandler) {
-        RestTemplate restTemplate = new RestTemplateBuilder()
+        return new RestTemplateBuilder()
                 .requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
                 .basicAuthentication(UMKA_DEFAULT_LOGIN, UMKA_DEFAULT_PASSWORD)
                 .additionalInterceptors(new RequestLoggingInterceptor())
                 .errorHandler(backendReportErrorHandler)
                 .build();
-        return restTemplate;
     }
 
     @Bean
     public RestTemplate backendRestTemplate() {
-        RestTemplate restTemplate = new RestTemplateBuilder()
+        return new RestTemplateBuilder()
                 .requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
                 .basicAuthentication(UMKA_DEFAULT_LOGIN, UMKA_DEFAULT_PASSWORD)
                 .additionalInterceptors(new RequestLoggingInterceptor())
                 .build();
-        return restTemplate;
     }
 
     @Bean
