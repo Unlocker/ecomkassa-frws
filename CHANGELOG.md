@@ -1,3 +1,7 @@
+### 0.4.11 (2020-01-05)
+
+1. Fixed an incorrect dates serialization to JSON
+
 ### 0.4.10 (2020-01-05)
 
 1. Fixed a duplicated bean definition

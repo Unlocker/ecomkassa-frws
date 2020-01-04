@@ -23,23 +23,36 @@ public class RequestLoggingInterceptor implements ClientHttpRequestInterceptor {
             , ClientHttpRequestExecution execution
     ) throws IOException {
 
-        ClientHttpResponse response = execution.execute(request, body);
-        if (log.isDebugEnabled() && response.getBody() instanceof ByteArrayInputStream) {
-            ByteArrayInputStream byteArrBodyInputStream = (ByteArrayInputStream) response.getBody();
-            log.debug(
-                    "request_method: {}, request_URI: {}, request_headers: {}, request_body: {}, "
-                            + "response_status: {}, response_headers: {}, response_body: {}"
+        try {
+            ClientHttpResponse response = execution.execute(request, body);
+            if (log.isDebugEnabled() && response.getBody() instanceof ByteArrayInputStream) {
+                ByteArrayInputStream byteArrBodyInputStream = (ByteArrayInputStream) response.getBody();
+                log.debug(
+                        "request_method: {}, request_URI: {}, request_headers: {}, request_body: {}, "
+                                + "response_status: {}, response_headers: {}, response_body: {}"
+                        , request.getMethod()
+                        , request.getURI()
+                        , request.getHeaders()
+                        , new String(body, CHARSET)
+                        , response.getStatusCode()
+                        , response.getHeaders()
+                        , new String(byteArrBodyInputStream.readAllBytes(), CHARSET)
+                );
+                // explicitly rewinds a buffer after a log entry printed
+                byteArrBodyInputStream.reset();
+            }
+            return response;
+        } catch (Exception e) {
+            log.warn(
+                    "failed request_method: {}, request_URI: {}, request_headers: {}, request_body: {}, reason: {}"
                     , request.getMethod()
                     , request.getURI()
                     , request.getHeaders()
                     , new String(body, CHARSET)
-                    , response.getStatusCode()
-                    , response.getHeaders()
-                    , new String(byteArrBodyInputStream.readAllBytes(), CHARSET)
+                    , e.getMessage()
             );
-            // explicitly rewinds a buffer after a log entry printed
-            byteArrBodyInputStream.reset();
+            throw e;
         }
-        return response;
+
     }
 }

@@ -3,6 +3,8 @@ server:
 
 logging:
   config: 'classpath:logback.xml'
+  level:
+    com.thepointmoscow.frws: DEBUG
 
 task.delay: 30
 

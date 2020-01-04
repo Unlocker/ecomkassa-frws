@@ -44,7 +44,6 @@ public class UtilityConfig {
     public RestTemplate backendRestTemplate() {
         return new RestTemplateBuilder()
                 .requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
-                .basicAuthentication(UMKA_DEFAULT_LOGIN, UMKA_DEFAULT_PASSWORD)
                 .additionalInterceptors(new RequestLoggingInterceptor())
                 .build();
     }
@@ -52,9 +51,9 @@ public class UtilityConfig {
     @Bean
     public ObjectMapper objectMapper() {
         return Jackson2ObjectMapperBuilder.json()
+                .modules(new JavaTimeModule())
                 .indentOutput(false)
                 .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .modules(new JavaTimeModule())
                 .build();
     }
 

@@ -190,6 +190,20 @@ class UmkaFiscalGatewayTest {
     }
 
     @Test
+    void shouldParseTestStatus() throws IOException {
+        // GIVEN
+        final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/status-test.json");
+        this.server.expect(requestTo(GET_STATUS_URL)).andRespond(withSuccess(body, CONTENT_TYPE));
+        // WHEN
+        val res = sut.status();
+        // THEN
+        assertThat(res.getCurrentDocNumber()).isEqualTo(1993);
+        assertThat(res.getCurrentSession()).isEqualTo(17);
+        assertThat(res.isRegistered()).isTrue();
+        assertThat(res.isStorageAttached()).isTrue();
+    }
+
+    @Test
     void shouldThrowFiscalError() throws IOException {
         // GIVEN
         this.server.expect(requestTo(GET_STATUS_URL))

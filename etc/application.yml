@@ -4,6 +4,12 @@ server.port: 8080
 # delay in seconds between task starts, 30 is default
 task.delay: 30
 
+# logging settings for app
+logging:
+  config: 'classpath:logback.xml'
+  level:
+    com.thepointmoscow.frws: DEBUG
+
 # Qkkm server settings
 fiscal:
   server:
@@ -17,7 +23,7 @@ fiscal:
     # Fiscal server host
     # Qkkm server port is 4545 by default
     # Umka server port is 8088 by default
-    port: 4545
+    port: 8080
 
 # Backend server settings,
 # there are required and have no defaults
