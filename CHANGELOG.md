@@ -1,3 +1,7 @@
+### 0.4.12 (2020-02-09)
+
+1. Added cashier name (tag 1021) and item nomenclature code (tag 1162)
+
 ### 0.4.11 (2020-01-05)
 
 1. Fixed an incorrect dates serialization to JSON

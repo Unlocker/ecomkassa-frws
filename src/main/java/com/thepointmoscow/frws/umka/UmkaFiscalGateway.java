@@ -208,6 +208,11 @@ public class UmkaFiscalGateway implements FiscalGateway {
         tags.add(new FiscalProperty().setTag(1018).setValue(firm.getTaxIdentityNumber()));
         tags.add(new FiscalProperty().setTag(1187).setValue(firm.getAddress()));
         tags.add(new FiscalProperty().setTag(1055).setValue(firm.getTaxVariant().getFfdCode()));
+        // sets a cashier name
+        ofNullable(order.getCashier())
+                .map(Objects::toString)
+                .map(name -> new FiscalProperty().setTag(1021).setValue(name))
+                .ifPresent(tags::add);
         // check total
         order.getPayments().stream()
                 .map(payment -> new FiscalProperty()
@@ -269,6 +274,9 @@ public class UmkaFiscalGateway implements FiscalGateway {
                     .ifPresent(itemTags::add);
             ofNullable(i.getUserData())
                     .map(it -> new FiscalProperty().setTag(1191).setValue(it))
+                    .ifPresent(itemTags::add);
+            ofNullable(i.getNomenclatureCode())
+                    .map(it -> new FiscalProperty().setTag(1162).setValue(it))
                     .ifPresent(itemTags::add);
 
             // supplier information

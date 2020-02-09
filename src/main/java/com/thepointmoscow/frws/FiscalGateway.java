@@ -58,6 +58,12 @@ public interface FiscalGateway {
      */
     SelectResult selectDoc(String documentNumber);
 
+    /**
+     * Makes a registration.
+     *
+     * @param data registration
+     * @return registration response
+     */
     String fiscalize(Map<String, Object> data);
 
     /**
