@@ -1,0 +1,11 @@
+{
+  "document": {
+    "message": {
+      "resultDescription": "Ошибка транспортного соединения ФН"
+    },
+    "result": 102,
+    "sessionId": "12345678"
+  },
+  "protocol": 1,
+  "version": "1.0"
+}

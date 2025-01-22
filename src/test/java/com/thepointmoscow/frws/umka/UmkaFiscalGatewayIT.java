@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thepointmoscow.frws.Order;
 import com.thepointmoscow.frws.RegistrationResult;
 import com.thepointmoscow.frws.UtilityConfig;
-import lombok.val;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -27,7 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  * Integration tests for an Umka fiscal gateway.
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = {UtilityConfig.class, WebTestConfig.class})
+@ContextConfiguration(classes = {UtilityConfig.class})
 @Disabled("Integration tests")
 class UmkaFiscalGatewayIT {
 
@@ -36,7 +35,6 @@ class UmkaFiscalGatewayIT {
     private static final String APP_VERSION = "1.2.3-test";
 
     @Autowired
-    @Qualifier("umka")
     private RestTemplate restTemplate;
 
     private UmkaFiscalGateway sut;
@@ -51,7 +49,7 @@ class UmkaFiscalGatewayIT {
     @Test
     void shouldReturnStatus() {
         // GIVEN // WHEN
-        val result = sut.status();
+        final var result = sut.status();
         // THEN
         assertThat(result).isNotNull();
         assertThat(result.getType()).isEqualToIgnoringCase("status");
@@ -78,7 +76,7 @@ class UmkaFiscalGatewayIT {
         order.setPayments(Collections.singletonList(new Order.Payment().setAmount(1L).setPaymentType("CASH")));
         Random rnd = new Random();
         // WHEN
-        val result = sut.register(order, rnd.nextLong(), false);
+        final var result = sut.register(order, rnd.nextLong(), false);
         // THEN
         assertThat(result).isNotNull();
         final RegistrationResult.Registration registration = result.getRegistration();
@@ -102,7 +100,7 @@ class UmkaFiscalGatewayIT {
         order.setPayments(Collections.singletonList(new Order.Payment().setAmount(1L).setPaymentType("CREDIT_CARD")));
         Random rnd = new Random();
         // WHEN
-        val result = sut.register(order, rnd.nextLong(), false);
+        final var result = sut.register(order, rnd.nextLong(), false);
         // THEN
         assertThat(result).isNotNull();
         final RegistrationResult.Registration registration = result.getRegistration();

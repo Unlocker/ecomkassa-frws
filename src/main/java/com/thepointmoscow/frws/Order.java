@@ -4,7 +4,6 @@ import com.google.common.base.Strings;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 
 import java.util.Collections;
 import java.util.List;
@@ -24,11 +23,15 @@ public class Order {
     private List<Payment> payments = Collections.emptyList();
     private Boolean isElectronic;
     private Correction correction;
+    private String additionalCheckProperty;
 
     @Data
     @Accessors(chain = true)
     public static class Firm {
         private String timezone;
+        private TaxVariant taxVariant;
+        private String address;
+        private String taxIdentityNumber;
     }
 
     @Data
@@ -48,6 +51,8 @@ public class Order {
     public static class Customer {
         private String phone;
         private String email;
+        private String name;
+        private String taxNumber;
 
         public String getId() {
             return !Strings.isNullOrEmpty(email) ? email : phone;
@@ -68,9 +73,10 @@ public class Order {
         private String userData;
         private SupplierInfo supplier;
         private AgentInfo agent;
+        private String nomenclatureCode;
 
         public PaymentMethod paymentMethod() {
-            val paymentMethodDefault = PaymentMethod.FULL_PAYMENT;
+            final var paymentMethodDefault = PaymentMethod.FULL_PAYMENT;
             try {
                 return Optional.ofNullable(paymentMethod)
                         .map(PaymentMethod::valueOf)
@@ -86,7 +92,7 @@ public class Order {
         }
 
         public PaymentObject paymentObject() {
-            val paymentObjectDefault = PaymentObject.COMMODITY;
+            final var paymentObjectDefault = PaymentObject.COMMODITY;
             try {
                 return Optional.ofNullable(paymentObject)
                         .map(PaymentObject::valueOf)

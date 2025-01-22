@@ -3,15 +3,16 @@ package com.thepointmoscow.frws.umka;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.thepointmoscow.frws.*;
+import com.thepointmoscow.frws.exceptions.FiscalException;
 import com.thepointmoscow.frws.exceptions.FrwsException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import lombok.val;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.client.RestTemplate;
 
 import java.time.*;
@@ -34,10 +35,15 @@ public class UmkaFiscalGateway implements FiscalGateway {
 
     private static final int SESSION_EXPIRED_ERROR = 136;
     private static final int SUMMARY_AMOUNT_DENOMINATOR = 1000;
+    private static final Random RANDOM = new Random();
     // Status modes.
     static final int STATUS_OPEN_SESSION = 2;
     static final int STATUS_EXPIRED_SESSION = 3;
     static final int STATUS_CLOSED_SESSION = 4;
+    /**
+     * The maximal length of an item name.
+     */
+    private static final int MAX_ITEM_NAME_LENGTH = 128;
 
     private final String umkaHost;
     private final int umkaPort;
@@ -76,19 +82,34 @@ public class UmkaFiscalGateway implements FiscalGateway {
         Map<String, Object> request = isCorrection ? correctionOrder(order, issueID) : regularOrder(order, issueID);
 
         String responseStr = getRestTemplate().postForObject(
-                makeUrl("fiscalcheck.json"),
-                new HttpEntity<>(request, generateHttpHeaders()),
-                String.class);
-        RegistrationResult registration = new RegistrationResult().apply(status());
+                makeUrl("fiscalcheck.json")
+                , new HttpEntity<>(request, generateHttpHeaders())
+                , String.class
+        );
+
+        RegistrationResult registration = new RegistrationResult();
         try {
             JsonNode response = mapper.readTree(responseStr);
-            val propsArr = response.path("document").path("data").path("fiscprops").iterator();
-            val codes = new HashSet<Integer>(Arrays.asList(1040, 1042));
-            val values = new HashMap<Integer, Integer>();
+            int errorCode = ofNullable(response.path("document").path("result"))
+                    .filter(JsonNode::isInt)
+                    .map(JsonNode::asInt)
+                    .orElse(0);
+
+            if (errorCode != 0) {
+                String errorMessage = ofNullable(response.path("document").path("message").path("resultDescription"))
+                        .filter(JsonNode::isTextual)
+                        .map(JsonNode::asText)
+                        .orElseGet(() -> String.format("An error with code %d has no description", errorCode));
+                throw new FiscalException(new FiscalResultError(errorCode, errorMessage));
+            }
+            final var propsArr = response.path("document").path("data").path("fiscprops").iterator();
+            final var codes = new HashSet<>(Arrays.asList(1040, 1042, 1038));
+            final var values = new HashMap<Integer, Integer>();
             Optional<ZonedDateTime> regDate = Optional.empty();
             Optional<String> signature = Optional.empty();
+            Optional<String> inn = Optional.empty();
             while (propsArr.hasNext()) {
-                val current = propsArr.next();
+                final var current = propsArr.next();
                 final int tag = current.get("tag").asInt();
                 if (1012 == tag) {
                     regDate = Optional.of(
@@ -102,14 +123,19 @@ public class UmkaFiscalGateway implements FiscalGateway {
                     signature = Optional.of(current.get("value").asText());
                     continue;
                 }
+                if (1018 == tag) {
+                    inn = Optional.of(current.get("value")).map(JsonNode::asText);
+                    continue;
+                }
                 if (codes.contains(tag)) {
                     values.put(tag, current.get("value").asInt());
                 }
             }
-            val documentNumber = ofNullable(values.get(1040));
-            val sessionCheck = ofNullable(values.get(1042));
-            if (Stream.of(regDate, signature, documentNumber, sessionCheck)
-                    .anyMatch(opt -> !opt.isPresent())) {
+            final var documentNumber = ofNullable(values.get(1040));
+            final var sessionCheck = ofNullable(values.get(1042));
+            final var currentSession = ofNullable(values.get(1038));
+            if (Stream.of(regDate, signature, documentNumber, sessionCheck, currentSession)
+                    .anyMatch(Optional::isEmpty)) {
                 throw new FrwsException(
                         String.format(
                                 "There is missed one or several required attributes for ORDER_ID=%s, ISSUE_ID=%s."
@@ -118,13 +144,27 @@ public class UmkaFiscalGateway implements FiscalGateway {
                         )
                 );
             }
-            val regInfo = new RegistrationResult.Registration()
+            StatusResult statusResult = new StatusResult()
+                    .setFrDateTime(regDate.get().toLocalDateTime())
+                    .setInn(inn.orElse(getLastStatus().getInn()))
+                    .setOnline(true)
+                    .setSerialNumber(getLastStatus().getSerialNumber())
+                    .setModeFR(2)
+                    .setSubModeFR(0)
+                    .setErrorCode(0)
+                    .setStatusMessage(null)
+                    .setStatus(null)
+                    .setCurrentSession(currentSession.get())
+                    .setCurrentDocNumber(documentNumber.get())
+                    .setAppVersion(buildProperties.getVersion());
+
+            final var regInfo = new RegistrationResult.Registration()
                     .setIssueID(issueID.toString())
                     .setRegDate(regDate.get())
                     .setDocNo(documentNumber.get().toString())
                     .setSignature(signature.get())
                     .setSessionCheck(sessionCheck.get());
-            return registration.setRegistration(regInfo);
+            return registration.setRegistration(regInfo).apply(statusResult);
         } catch (Exception e) {
             log.error("Error parsing the response: {} | {}", responseStr, e.getMessage());
             if (e instanceof FrwsException) {
@@ -143,13 +183,13 @@ public class UmkaFiscalGateway implements FiscalGateway {
      * @return codified order
      */
     private Map<String, Object> regularOrder(Order order, Long issueID) {
-        val doc = new FiscalDoc();
+        final var doc = new FiscalDoc();
         doc.setPrint(1);
         doc.setSessionId(issueID.toString());
         FiscalData data = new FiscalData();
         doc.setData(data);
         data.setDocName("Кассовый чек");
-        val paymentType = order.getPayments().stream()
+        final var paymentType = order.getPayments().stream()
                 .findFirst()
                 .map(Order.Payment::getPaymentType)
                 .map(PaymentType::valueOf)
@@ -158,14 +198,21 @@ public class UmkaFiscalGateway implements FiscalGateway {
         data.setMoneyType(paymentType.getCode());
         data.setType(SaleChargeGeneral.valueOf(order.getSaleCharge()).getCode());
         data.setSum(0);
-        val tags = new ArrayList<FiscalProperty>();
+        final var tags = new ArrayList<FiscalProperty>();
         data.setFiscprops(tags);
 
-        val info = getLastStatus();
+        final var info = getLastStatus();
         // Registration number, Tax identifier, Tax Variant
+        final Order.Firm firm = order.getFirm();
         tags.add(new FiscalProperty().setTag(1037).setValue(info.getRegNumber()));
-        tags.add(new FiscalProperty().setTag(1018).setValue(info.getInn()));
-        tags.add(new FiscalProperty().setTag(1055).setValue(info.getTaxVariant()));
+        tags.add(new FiscalProperty().setTag(1018).setValue(firm.getTaxIdentityNumber()));
+        tags.add(new FiscalProperty().setTag(1187).setValue(firm.getAddress()));
+        tags.add(new FiscalProperty().setTag(1055).setValue(firm.getTaxVariant().getFfdCode()));
+        // sets a cashier name
+        ofNullable(order.getCashier())
+                .map(Objects::toString)
+                .map(name -> new FiscalProperty().setTag(1021).setValue(name))
+                .ifPresent(tags::add);
         // check total
         order.getPayments().stream()
                 .map(payment -> new FiscalProperty()
@@ -177,9 +224,24 @@ public class UmkaFiscalGateway implements FiscalGateway {
         // Sale Charge
         tags.add(new FiscalProperty().setTag(1054)
                 .setValue(SaleCharge.valueOf(order.getSaleCharge()).getCode()));
+
+        // == Customer attributes ==
+        final Optional<Order.Customer> maybeCustomer = ofNullable(order.getCustomer());
         // customer id: email or phone
-        ofNullable(order.getCustomer().getId())
-                .map(customer -> new FiscalProperty().setTag(1008).setValue(customer))
+        maybeCustomer.map(Order.Customer::getId)
+                .map(customerId -> new FiscalProperty().setTag(1008).setValue(customerId))
+                .ifPresent(tags::add);
+        // customer name
+        maybeCustomer.map(Order.Customer::getName)
+                .map(customerName -> new FiscalProperty().setTag(1227).setValue(customerName))
+                .ifPresent(tags::add);
+        // customer tax number
+        maybeCustomer.map(Order.Customer::getTaxNumber)
+                .map(customerTaxNo -> new FiscalProperty().setTag(1228).setValue(customerTaxNo))
+                .ifPresent(tags::add);
+        // additional property
+        ofNullable(order.getAdditionalCheckProperty())
+                .map(prop -> new FiscalProperty().setTag(1192).setValue(prop))
                 .ifPresent(tags::add);
 
         for (Order.Item i : order.getItems()) {
@@ -196,13 +258,16 @@ public class UmkaFiscalGateway implements FiscalGateway {
                             .setTag(paymentObject.getFfdTag())
                             .setValue(paymentObject.getCode())
             );
-            itemTags.add(new FiscalProperty().setTag(1030).setValue(i.getName()));
+            Optional.of(i.getName())
+                    .map(name -> (name.length() <= MAX_ITEM_NAME_LENGTH ? name : name.substring(0, MAX_ITEM_NAME_LENGTH)))
+                    .map(name -> new FiscalProperty().setTag(1030).setValue(name))
+                    .ifPresent(itemTags::add);
             itemTags.add(new FiscalProperty().setTag(1079).setValue(i.getPrice()));
             itemTags.add(new FiscalProperty().setTag(1023)
                     .setValue(String.format("%.3f", ((double) i.getAmount()) / SUMMARY_AMOUNT_DENOMINATOR)));
             itemTags.add(new FiscalProperty().setTag(1199)
                     .setValue(ItemVatType.valueOf(i.getVatType()).getCode()));
-            val total = i.getAmount() * i.getPrice() / SUMMARY_AMOUNT_DENOMINATOR;
+            final var total = i.getAmount() * i.getPrice() / SUMMARY_AMOUNT_DENOMINATOR;
             itemTags.add(new FiscalProperty().setTag(1043).setValue(total));
             ofNullable(i.getMeasurementUnit())
                     .map(it -> new FiscalProperty().setTag(1197).setValue(it))
@@ -210,6 +275,10 @@ public class UmkaFiscalGateway implements FiscalGateway {
             ofNullable(i.getUserData())
                     .map(it -> new FiscalProperty().setTag(1191).setValue(it))
                     .ifPresent(itemTags::add);
+            ofNullable(i.getNomenclatureCode())
+                    .map(it -> new FiscalProperty().setTag(1162).setValue(it))
+                    .ifPresent(itemTags::add);
+
             // supplier information
             ofNullable(i.getSupplier()).ifPresent(suppInfo -> {
                 List<FiscalProperty> suppProps = new LinkedList<>();
@@ -221,11 +290,14 @@ public class UmkaFiscalGateway implements FiscalGateway {
                 ofNullable(suppInfo.getSupplierName()).ifPresent(
                         it -> suppProps.add(new FiscalProperty().setTag(1225).setValue(it))
                 );
-                ofNullable(suppInfo.getSupplierInn()).ifPresent(
-                        it -> suppProps.add(new FiscalProperty().setTag(1226).setValue(it))
-                );
                 itemTags.add(new FiscalProperty().setTag(1224).setFiscprops(suppProps));
+
+                // supplier tax number writes directly to item tags
+                ofNullable(suppInfo.getSupplierInn())
+                        .map(it -> new FiscalProperty().setTag(1226).setValue(it))
+                        .ifPresent(itemTags::add);
             });
+
             // agent information
             ofNullable(i.getAgent()).ifPresent(agent -> {
                 ofNullable(agent.getAgentType())
@@ -256,7 +328,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
                 itemTags.add(new FiscalProperty().setTag(1223).setFiscprops(agentProps));
             });
 
-            val item = new FiscalProperty().setTag(1059).setFiscprops(itemTags);
+            final var item = new FiscalProperty().setTag(1059).setFiscprops(itemTags);
             tags.add(item);
         }
         tags.add(new FiscalProperty().setTag(1060).setValue("www.nalog.ru"));
@@ -273,13 +345,13 @@ public class UmkaFiscalGateway implements FiscalGateway {
      * @return codified order
      */
     private Map<String, Object> correctionOrder(Order order, Long issueId) {
-        val doc = new FiscalDoc();
+        final var doc = new FiscalDoc();
         doc.setPrint(1);
         doc.setSessionId(issueId.toString());
         FiscalData data = new FiscalData();
         doc.setData(data);
         data.setDocName("Чек коррекции");
-        val paymentType = order.getPayments().stream()
+        final var paymentType = order.getPayments().stream()
                 .findFirst()
                 .map(Order.Payment::getPaymentType)
                 .map(PaymentType::valueOf)
@@ -288,9 +360,9 @@ public class UmkaFiscalGateway implements FiscalGateway {
         data.setMoneyType(paymentType.getCode());
         data.setType(SaleChargeGeneral.valueOf(order.getSaleCharge()).getCode());
         data.setSum(0);
-        val tags = new ArrayList<FiscalProperty>();
+        final var tags = new ArrayList<FiscalProperty>();
         data.setFiscprops(tags);
-        val info = getLastStatus();
+        final var info = getLastStatus();
         // Registration number, Tax identifier, Tax Variant
         tags.add(new FiscalProperty().setTag(1037).setValue(info.getRegNumber()));
         tags.add(new FiscalProperty().setTag(1018).setValue(info.getInn()));
@@ -314,7 +386,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
                     )
             );
         }
-        val correction = order.getCorrection();
+        final var correction = order.getCorrection();
         tags.add(new FiscalProperty().setTag(1173).setValue("SELF_MADE".equals(correction.getCorrectionType()) ? 0 : 1));
         FiscalProperty corrTag = new FiscalProperty().setTag(1174).setFiscprops(new ArrayList<>());
         corrTag.getFiscprops().add(new FiscalProperty().setTag(1177).setValue(correction.getDescription()));
@@ -355,6 +427,12 @@ public class UmkaFiscalGateway implements FiscalGateway {
     }
 
     @Override
+    public StatusResult closeArchive() {
+        getRestTemplate().getForObject(makeUrl("closefs.json?print=1"), String.class);
+        return status();
+    }
+
+    @Override
     public StatusResult cancelCheck() {
         throw new UnsupportedOperationException("cancelCheck");
     }
@@ -362,28 +440,42 @@ public class UmkaFiscalGateway implements FiscalGateway {
     @Override
     public StatusResult status() {
         String responseStr = getRestTemplate().getForObject(makeUrl("cashboxstatus.json"), String.class);
-        val result = prepareStatus();
+        final var result = prepareStatus();
         JsonNode response;
         try {
             response = mapper.readTree(responseStr);
 
-            val status = ofNullable(response.get("cashboxStatus"));
+            final var status = ofNullable(response.get("cashboxStatus"));
             result.setErrorCode(0);
             result.setCurrentDocNumber(
-                    status.map(x -> x.path("fsStatus").path("lastDocNumber")).filter(JsonNode::isInt).map(JsonNode::asInt)
-                            .orElse(-1));
+                    status.map(x -> x.path("fsStatus").path("lastDocNumber"))
+                            .filter(JsonNode::isInt)
+                            .map(JsonNode::asInt)
+                            .orElse(null));
+
             result.setCurrentSession(
-                    status.map(x -> x.path("cycleNumber")).filter(JsonNode::isInt).map(JsonNode::asInt).orElse(-1));
+                    status.map(x -> x.path("cycleNumber"))
+                            .filter(JsonNode::isInt)
+                            .map(JsonNode::asInt)
+                            .orElse(null));
+
             final Optional<OffsetDateTime> timestamp = status.map(x -> x.get("dt").asText())
                     .map(x -> OffsetDateTime.parse(x, RFC_1123_DATE_TIME));
 
             result.setFrDateTime(timestamp.map(OffsetDateTime::toLocalDateTime).orElse(LocalDateTime.MIN));
             result.setOnline(true);
             final String inn = status.map(x -> x.path("userInn")).filter(node -> !node.isMissingNode())
-                    .map(JsonNode::asText).orElse("");
+                    .map(JsonNode::asText).orElse(null);
+
             result.setInn(inn);
-            final String regNumber = status.map(x -> x.get("regNumber").asText()).orElse("");
+            final String regNumber = status.map(x -> x.get("regNumber").asText()).orElse(null);
+            result.setRegNumber(regNumber);
             final int taxVariant = status.map(x -> x.path("taxes")).filter(JsonNode::isInt).map(JsonNode::asInt).orElse(0);
+            result.setStorageNumber(status.map(x -> x.path("fsStatus").path("fsNumber"))
+                    .filter(JsonNode::isTextual)
+                    .map(JsonNode::asText)
+                    .filter(s -> !s.isBlank())
+                    .orElse(null));
 
             boolean isOpen = status.map(x -> x.path("fsStatus").path("cycleIsOpen"))
                     .map(x -> x.isInt() && x.asInt() != 0).orElse(false);
@@ -394,10 +486,15 @@ public class UmkaFiscalGateway implements FiscalGateway {
 
             result.setModeFR(statusMode(isOpen, timestamp, opened));
             result.setSubModeFR(0);
-            result.setSerialNumber(status.map(x -> x.get("serial").asText()).orElse(""));
+
+            String serialNumber = status.map(x -> x.path("serial"))
+                    .filter(JsonNode::isTextual)
+                    .map(JsonNode::asText)
+                    .orElse(null);
+            result.setSerialNumber(serialNumber);
             result.setStatusMessage(ofNullable(response.path("message")).map(JsonNode::asText).orElse(""));
             result.setStatus(response);
-            this.lastStatus = new RegInfo(inn, taxVariant, regNumber);
+            this.lastStatus = new RegInfo(inn, taxVariant, regNumber, serialNumber);
             return result;
         } catch (Exception e) {
             log.error("Error while reading a cashbox status. {}", e.getMessage());
@@ -441,7 +538,75 @@ public class UmkaFiscalGateway implements FiscalGateway {
     }
 
     @Override
-    public StatusResult continuePrint() {
-        throw new UnsupportedOperationException("continuePrint");
+    public SelectResult selectDoc(String documentNumber) {
+        String responseStr = getRestTemplate().getForObject(makeUrl("fiscaldoc.json?number=" + documentNumber + "&print=1"), String.class);
+
+        SelectResult selectResult = new SelectResult();
+
+        try {
+            JsonNode response = mapper.readTree(responseStr);
+            final var propsArr = response.path("document").path("data").path("fiscprops").iterator();
+
+            final var codes = new HashSet<>(Arrays.asList(1018, 1037, 1013, 1041, 1040));
+            final var values = new HashMap<Integer, String>();
+            Optional<ZonedDateTime> regDate = Optional.empty();
+            while (propsArr.hasNext()) {
+                final var current = propsArr.next();
+                final int tag = current.get("tag").asInt();
+                if (1012 == tag) {
+                    regDate = Optional.of(
+                            OffsetDateTime.parse(current.get("value").asText()
+                                    , RFC_1123_DATE_TIME
+                            ).toZonedDateTime()
+                    );
+                    continue;
+                }
+                if (codes.contains(tag)) {
+                    values.put(tag, current.get("value").asText().trim());
+                }
+            }
+
+            if (codes.stream()
+                    .map(values::get)
+                    .map(Optional::ofNullable)
+                    .anyMatch(Optional::isEmpty) || regDate.isEmpty()) {
+                throw new FrwsException(
+                        String.format(
+                                "There is missed one or several required attributes for DOCUMENT_NUMBER=%s."
+                                , documentNumber
+                        )
+                );
+            }
+            final var status = new SelectResult.Document()
+                    .setDocDate(regDate.get())
+                    .setTaxNumber(values.get(1018))
+                    .setRegNumber(values.get(1037))
+                    .setSerialNumber(values.get(1013))
+                    .setStorageNumber(values.get(1041))
+                    .setDocNumber(values.get(1040))
+                    .setPayload(response.path("document"));
+            return selectResult.setDocument(status);
+        } catch (Exception e) {
+            log.error("Error parsing the response: {} | {}", responseStr, e.getMessage());
+            if (e instanceof FrwsException) {
+                throw (FrwsException) e;
+            } else {
+                throw new FrwsException(e);
+            }
+        }
+    }
+
+    @Override
+    public String fiscalize(Map<String, Object> data) {
+        data.put("sessionId", RANDOM.nextInt());
+        ResponseEntity<String> response = restTemplate.postForEntity(makeUrl("fiscalize.json"),
+                new HttpEntity<>(data, generateHttpHeaders()),
+                String.class);
+        return response.getBody();
+    }
+
+    @Override
+    public String selectDocAsIs(String documentId) {
+        return getRestTemplate().getForObject(makeUrl("fiscaldoc.json?number=" + documentId + "&print=1"), String.class);
     }
 }

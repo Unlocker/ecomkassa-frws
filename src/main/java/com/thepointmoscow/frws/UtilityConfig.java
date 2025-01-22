@@ -10,10 +10,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 import org.springframework.http.client.BufferingClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestFactory;
-import org.springframework.http.client.ClientHttpRequestInterceptor;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
 import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder;
+import org.springframework.web.client.ResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
@@ -27,34 +26,34 @@ public class UtilityConfig {
     private static final String UMKA_DEFAULT_PASSWORD = "1";
 
     @Bean
-    public ClientHttpRequestFactory requestFactory() {
-        return new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory());
+    public ResponseErrorHandler backendReportErrorHandler(ObjectMapper objectMapper) {
+        return new BackendReportErrorHandler(objectMapper);
     }
 
     @Bean
-    public ClientHttpRequestInterceptor interceptor() {
-        return new RequestLoggingInterceptor();
-    }
-
-    @Bean
-    public RestTemplate restTemplate(
-            RestTemplateBuilder builder,
-            ClientHttpRequestFactory factory,
-            ClientHttpRequestInterceptor interceptor) {
-
-        return builder
+    public RestTemplate restTemplate(ResponseErrorHandler backendReportErrorHandler) {
+        return new RestTemplateBuilder()
+                .requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
                 .basicAuthentication(UMKA_DEFAULT_LOGIN, UMKA_DEFAULT_PASSWORD)
-                .requestFactory(factory.getClass())
-                .additionalInterceptors(interceptor)
+                .additionalInterceptors(new RequestLoggingInterceptor())
+                .errorHandler(backendReportErrorHandler)
+                .build();
+    }
+
+    @Bean
+    public RestTemplate backendRestTemplate() {
+        return new RestTemplateBuilder()
+                .requestFactory(() -> new BufferingClientHttpRequestFactory(new SimpleClientHttpRequestFactory()))
+                .additionalInterceptors(new RequestLoggingInterceptor())
                 .build();
     }
 
     @Bean
     public ObjectMapper objectMapper() {
         return Jackson2ObjectMapperBuilder.json()
+                .modules(new JavaTimeModule())
                 .indentOutput(false)
                 .featuresToDisable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
-                .modules(new JavaTimeModule())
                 .build();
     }
 

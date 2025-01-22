@@ -1,0 +1,6 @@
+#management {
+    display: flex;
+    ALIGN-ITEMS: center;
+    margin: 50px 0 0 0;
+    flex-direction: column;
+}

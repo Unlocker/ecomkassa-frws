@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="ru">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div class="frws-settings" th:fragment="settings">
+    <div th:each="prop : ${props}">
+        <span class="prop-key" th:text="${prop.key}"></span>
+        <span th:text="' = '"></span>
+        <span class="prop-value" th:text="${prop.value}"></span>
+    </div>
+</div>
+
+</body>
+</html>

@@ -1,15 +1,15 @@
 package com.thepointmoscow.frws.fakes;
 
-import com.thepointmoscow.frws.FiscalGateway;
-import com.thepointmoscow.frws.Order;
-import com.thepointmoscow.frws.RegistrationResult;
-import com.thepointmoscow.frws.StatusResult;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.thepointmoscow.frws.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.info.BuildProperties;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Map;
 
 /**
  * Fiscal gateway that sends to log received requests.
@@ -62,6 +62,12 @@ public class LoggingFiscalGateway implements FiscalGateway {
     }
 
     @Override
+    public StatusResult closeArchive() {
+        log.info("Archive closing request received.");
+        return status;
+    }
+
+    @Override
     public StatusResult cancelCheck() {
         log.info("Check canceling request received.");
         return status;
@@ -74,8 +80,35 @@ public class LoggingFiscalGateway implements FiscalGateway {
     }
 
     @Override
-    public StatusResult continuePrint() {
-        log.info("Print continuation request received.");
-        return status;
+    public SelectResult selectDoc(String documentNumber) {
+        log.info("Select document request received");
+        SelectResult.Document document = new SelectResult.Document()
+                .setTaxNumber("7725225244")
+                .setRegNumber("1693666568053977")
+                .setSerialNumber("16999987")
+                .setStorageNumber("9999078900003063")
+                .setDocNumber("12");
+        return new SelectResult().setDocument(document);
+    }
+
+    @Override
+    public String fiscalize(Map<String, Object> data) {
+        log.info("Status retrieval request received.");
+        return serializeStatusToJson(status);
+    }
+
+    private String serializeStatusToJson(StatusResult status) {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.writeValueAsString(status);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    @Override
+    public String selectDocAsIs(String documentId) {
+        return serializeStatusToJson(status);
     }
 }

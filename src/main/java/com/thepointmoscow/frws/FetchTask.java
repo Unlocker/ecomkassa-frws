@@ -1,9 +1,13 @@
 package com.thepointmoscow.frws;
 
+import com.thepointmoscow.frws.exceptions.FiscalException;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
+import java.util.Optional;
 import java.util.function.BiConsumer;
+
+import static com.thepointmoscow.frws.BackendCommand.BackendCommandType.CLOSE_SESSION;
 
 @Slf4j
 public class FetchTask implements Runnable {
@@ -16,13 +20,13 @@ public class FetchTask implements Runnable {
     /**
      * A single fetch task.
      *
-     * @param backend backend
-     * @param fiscal fiscal gateway
+     * @param backend  backend
+     * @param fiscal   fiscal gateway
      * @param callback callback function
-     * @param ccms CCMs
+     * @param ccms     CCMs
      */
     public FetchTask(BackendGateway backend, FiscalGateway fiscal, BiConsumer<Runnable, Boolean> callback,
-            Collection<String> ccms) {
+                     Collection<String> ccms) {
         this.backend = backend;
         this.fiscal = fiscal;
         this.callback = callback;
@@ -52,16 +56,35 @@ public class FetchTask implements Runnable {
             status = fiscal.status();
             command = backend.status(ccmID, status);
             switch (command.getCommand()) {
-            case NONE:
-                return false;
-            case REGISTER:
-                RegistrationResult registration = fiscal
-                        .register(command.getOrder(), command.getIssueID(), 4 == status.getModeFR());
-                backend.register(ccmID, registration);
-                return true;
-            case CLOSE_SESSION:
+                case NONE:
+                    return false;
+                case REGISTER:
+                    RegistrationResult registration = fiscal
+                            .register(command.getOrder(), command.getIssueID(), 4 == status.getModeFR());
+                    BackendCommand registerResponse = backend.register(ccmID, registration);
+                    // if response contains a session closing command then execute it
+                    if (CLOSE_SESSION == registerResponse.getCommand()) {
+                        fiscal.closeSession();
+                    }
+                    return true;
+                case SELECT_DOC:
+                    SelectResult select = fiscal.selectDoc(command.getDocumentNumber());
+                    backend.selectDoc(ccmID, command.getIssueID(), select);
+                    return true;
+                case CLOSE_SESSION:
+                    fiscal.closeSession();
+                    return false;
+            }
+        } catch (FiscalException e) {
+            BackendCommand response = backend.error(ccmID, command.getIssueID(), e.getFiscalResultError());
+            // if response contains a session closing command then execute it
+            if (
+                    Optional.ofNullable(response)
+                            .map(BackendCommand::getCommand)
+                            .filter(CLOSE_SESSION::equals)
+                            .isPresent()
+            ) {
                 fiscal.closeSession();
-                return false;
             }
         } catch (Exception e) {
             log.error("Error while processing own status ({}) or input command ({}). {}", status, command, e);

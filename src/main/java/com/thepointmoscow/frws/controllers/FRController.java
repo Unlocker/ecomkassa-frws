@@ -1,12 +1,14 @@
 package com.thepointmoscow.frws.controllers;
 
-import com.thepointmoscow.frws.FiscalGateway;
-import com.thepointmoscow.frws.StatusResult;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.thepointmoscow.frws.FiscalGateway;
+import com.thepointmoscow.frws.StatusResult;
+
+import lombok.extern.slf4j.Slf4j;
 
 
 /**
@@ -65,16 +67,6 @@ public class FRController {
     @RequestMapping("/check/cancel")
     public StatusResult cancelCheck() {
         return frGateway.cancelCheck();
-    }
-
-    /**
-     * Continues printing of an opened check.
-     *
-     * @return status
-     */
-    @RequestMapping("/continue/print")
-    public StatusResult continuePrint() {
-        return frGateway.continuePrint();
     }
 
 }

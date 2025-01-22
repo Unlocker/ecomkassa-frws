@@ -11,7 +11,7 @@ public enum AgentType {
     PAYING_SUBAGENT(8),
     ATTORNEY(16),
     COMMISSION_AGENT(32),
-    OTHER(64);
+    ANOTHER(64);
 
     /**
      * Tag number.
