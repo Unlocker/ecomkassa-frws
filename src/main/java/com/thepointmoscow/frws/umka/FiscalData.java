@@ -10,5 +10,6 @@ class FiscalData {
     private int moneyType;
     private long sum;
     private int type;
+    private Integer tax = null;
     private List<FiscalProperty> fiscprops;
 }

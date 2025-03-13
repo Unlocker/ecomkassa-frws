@@ -3,6 +3,7 @@ package com.thepointmoscow.frws;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
+@Getter
 @RequiredArgsConstructor
 public enum TaxVariant {
     GENERAL(1),
@@ -12,6 +13,5 @@ public enum TaxVariant {
     SINGLE_AGRICULTURE_TAX(16),
     PATENT(32);
 
-    @Getter
     private final int ffdCode;
 }

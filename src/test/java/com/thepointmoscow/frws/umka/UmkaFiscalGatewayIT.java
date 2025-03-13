@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -20,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Random;
 
+import static com.thepointmoscow.frws.umka.ItemVatType.VAT_18PCT;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -72,7 +72,7 @@ class UmkaFiscalGatewayIT {
         order.setCustomer(new Order.Customer().setEmail("customer@example.com"));
         order.setItems(Collections.singletonList(
                 new Order.Item().setName("Тапочки для тараканов").setAmount(1000L).setPrice(1L)
-                        .setVatType("VAT_18PCT")));
+                        .setVatType(VAT_18PCT)));
         order.setPayments(Collections.singletonList(new Order.Payment().setAmount(1L).setPaymentType("CASH")));
         Random rnd = new Random();
         // WHEN
@@ -96,7 +96,7 @@ class UmkaFiscalGatewayIT {
         order.setCustomer(new Order.Customer().setEmail("customer@example.com"));
         order.setItems(Collections.singletonList(
                 new Order.Item().setName("Тапочки для тараканов").setAmount(1000L).setPrice(1L)
-                        .setVatType("VAT_18PCT")));
+                        .setVatType(VAT_18PCT)));
         order.setPayments(Collections.singletonList(new Order.Payment().setAmount(1L).setPaymentType("CREDIT_CARD")));
         Random rnd = new Random();
         // WHEN
