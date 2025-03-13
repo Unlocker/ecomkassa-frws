@@ -1,3 +1,7 @@
+### 0.4.13 (2025-01-22)
+
+1. Added new VATs
+
 ### 0.4.12 (2020-02-09)
 
 1. Added cashier name (tag 1021) and item nomenclature code (tag 1162)
