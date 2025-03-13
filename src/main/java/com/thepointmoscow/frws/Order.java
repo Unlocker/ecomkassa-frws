@@ -1,6 +1,7 @@
 package com.thepointmoscow.frws;
 
 import com.google.common.base.Strings;
+import com.thepointmoscow.frws.umka.ItemVatType;
 import lombok.Data;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
@@ -66,7 +67,7 @@ public class Order {
         private String name;
         private Long price;
         private Long amount;
-        private String vatType;
+        private ItemVatType vatType;
         private String paymentMethod;
         private String paymentObject;
         private String measurementUnit;
@@ -119,7 +120,7 @@ public class Order {
     @Accessors(chain = true)
     public static class Correction {
         private String correctionType;
-        private String vatType;
+        private ItemVatType vatType;
         private String description;
         private String documentDate;
         private String documentNumber;

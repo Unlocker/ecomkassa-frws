@@ -3,6 +3,7 @@ package com.thepointmoscow.frws.umka;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+@Getter
 @AllArgsConstructor
 public enum PaymentType {
     CASH(1, 1031),
@@ -11,9 +12,7 @@ public enum PaymentType {
     POST_PAID(4, 1216),
     COUNTER_OFFER(5, 1217);
 
-    @Getter
     private final int code;
 
-    @Getter
     private final int tag;
 }

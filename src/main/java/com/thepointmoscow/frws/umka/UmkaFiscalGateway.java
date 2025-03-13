@@ -266,7 +266,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
             itemTags.add(new FiscalProperty().setTag(1023)
                     .setValue(String.format("%.3f", ((double) i.getAmount()) / SUMMARY_AMOUNT_DENOMINATOR)));
             itemTags.add(new FiscalProperty().setTag(1199)
-                    .setValue(ItemVatType.valueOf(i.getVatType()).getCode()));
+                    .setValue(i.getVatType().getCode()));
             final var total = i.getAmount() * i.getPrice() / SUMMARY_AMOUNT_DENOMINATOR;
             itemTags.add(new FiscalProperty().setTag(1043).setValue(total));
             ofNullable(i.getMeasurementUnit())
@@ -360,10 +360,9 @@ public class UmkaFiscalGateway implements FiscalGateway {
         data.setMoneyType(paymentType.getCode());
         data.setType(SaleChargeGeneral.valueOf(order.getSaleCharge()).getCode());
         data.setSum(0);
-        final var tags = new ArrayList<FiscalProperty>();
-        data.setFiscprops(tags);
         final var info = getLastStatus();
         // Registration number, Tax identifier, Tax Variant
+        final var tags = new ArrayList<FiscalProperty>();
         tags.add(new FiscalProperty().setTag(1037).setValue(info.getRegNumber()));
         tags.add(new FiscalProperty().setTag(1018).setValue(info.getInn()));
         tags.add(new FiscalProperty().setTag(1055).setValue(info.getTaxVariant()));
@@ -398,6 +397,9 @@ public class UmkaFiscalGateway implements FiscalGateway {
         );
         corrTag.getFiscprops().add(new FiscalProperty().setTag(1179).setValue(correction.getDocumentNumber()));
         tags.add(corrTag);
+
+        data.setFiscprops(tags);
+        data.setTax(correction.getVatType().getCode());
         Map<String, Object> request = new HashMap<>();
         request.put("document", doc);
         return request;

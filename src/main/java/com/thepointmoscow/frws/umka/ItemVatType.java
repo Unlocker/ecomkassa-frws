@@ -6,6 +6,7 @@ import lombok.Getter;
 /**
  * Value added tax (VAT) types.
  */
+@Getter
 @AllArgsConstructor
 public enum ItemVatType {
     VAT_18PCT(1),
@@ -21,7 +22,6 @@ public enum ItemVatType {
     VAT_105PCT(9),
     VAT_107PCT(10);
 
-    @Getter
     private final int code;
 
 }
