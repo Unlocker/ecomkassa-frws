@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Random;
 
+import static com.thepointmoscow.frws.umka.ItemVatType.VAT_18PCT;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.requestTo;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
@@ -162,7 +163,7 @@ class UmkaFiscalGatewayTestError {
         order.setCustomer(new Order.Customer().setEmail("customer@example.com"));
         order.setItems(Collections.singletonList(
                 new Order.Item().setName("Тапочки для тараканов").setAmount(1000L).setPrice(1L)
-                        .setVatType("VAT_18PCT")));
+                        .setVatType(VAT_18PCT)));
         order.setPayments(Collections.singletonList(new Order.Payment().setAmount(1L).setPaymentType("CASH")));
         return order;
     }

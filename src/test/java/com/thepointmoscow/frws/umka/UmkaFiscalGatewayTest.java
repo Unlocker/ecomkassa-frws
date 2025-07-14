@@ -166,6 +166,37 @@ class UmkaFiscalGatewayTest {
     }
 
     @Test
+    void shouldMakeCorrection() throws IOException {
+        // GIVEN
+        this.server.expect(requestTo(GET_STATUS_URL))
+                .andRespond(withSuccess(getBodyFromFile("/com/thepointmoscow/frws/umka/open-session.json"), CONTENT_TYPE));
+
+        this.server.expect(requestTo(POST_REGISTER_URL))
+                .andRespond(withSuccess(getBodyFromFile("/com/thepointmoscow/frws/umka/fiscalcheck.json"), CONTENT_TYPE));
+        // WHEN
+        final var res = sut.register(generateCorrection(), 1L, false);
+
+        // THEN
+        assertThat(res).isNotNull();
+        assertThat(res.getRegistration()).isNotNull();
+        assertThat(res.getRegistration().getIssueID()).isEqualTo("1");
+        assertThat(res.getRegistration().getSignature()).isEqualTo("7725225244");
+        assertThat(res.getRegistration().getDocNo()).isEqualTo("45");
+        assertThat(res.getType()).isEqualTo("REGISTRATION");
+        assertThat(res.isOnline()).isTrue();
+        assertThat(res.getInn()).isEqualTo("7725225244");
+        assertThat(res.getCurrentDocNumber()).isEqualTo(45);
+        assertThat(res.getCurrentSession()).isEqualTo(12);
+        assertThat(res.getModeFR()).isEqualTo(2);
+        assertThat(res.getSubModeFR()).isEqualTo(0);
+        assertThat(res.getErrorCode()).isEqualTo(0);
+        assertThat(res.getStatusMessage()).isNull();
+        assertThat(res.getAppVersion()).isEqualTo(props.getVersion());
+        assertThat(res.getStatus()).isNull();
+        assertThat(res.isSessionClosed()).isFalse();
+    }
+
+    @Test
     void shouldParseNotRegistered() throws IOException {
         // GIVEN
         final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/not-registered.json");
@@ -266,15 +297,29 @@ class UmkaFiscalGatewayTest {
         ;
     }
 
-    private Order generateOrder() {
+    private static Order generateOrder() {
         return new Order()
                 .setSaleCharge("SALE")
                 .setFirm(
                         new Order.Firm()
-                        .setTaxVariant(TaxVariant.GENERAL)
-                        .setAddress("г. Тараканов")
-                        .setTaxIdentityNumber("1234567890")
+                                .setTaxVariant(TaxVariant.GENERAL)
+                                .setAddress("г. Тараканов")
+                                .setTaxIdentityNumber("1234567890")
                 );
     }
+
+
+    private static Order generateCorrection() {
+        return generateOrder()
+                .setSaleCharge("SALE_CORRECTION")
+                .setCorrection(
+                        new Order.Correction()
+                                .setCorrectionType("SELF_MADE")
+                                .setDescription("описание")
+                                .setDocumentDate("2024-03-25")
+                                .setVatType(ItemVatType.VAT_10PCT)
+                );
+    }
+
 
 }
