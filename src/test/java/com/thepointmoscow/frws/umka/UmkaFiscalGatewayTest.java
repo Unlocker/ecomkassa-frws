@@ -274,7 +274,7 @@ class UmkaFiscalGatewayTest {
                 .setCorrection(
                         new Order.Correction()
                                 .setCorrectionType("SELF_MADE")
-                                .setVatType("VAT_NONE")
+                                .setVatType(ItemVatType.VAT_NONE)
                                 .setDocumentDate("2025-04-03")
                 )
                 .setPayments(
