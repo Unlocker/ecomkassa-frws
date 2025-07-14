@@ -182,7 +182,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
      * @param issueID issue ID
      * @return codified order
      */
-    private Map<String, Object> regularOrder(Order order, Long issueID) {
+    Map<String, Object> regularOrder(Order order, Long issueID) {
         final var doc = new FiscalDoc();
         doc.setPrint(1);
         doc.setSessionId(issueID.toString());
@@ -344,7 +344,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
      * @param issueId issue ID
      * @return codified order
      */
-    private Map<String, Object> correctionOrder(Order order, Long issueId) {
+    Map<String, Object> correctionOrder(Order order, Long issueId) {
         final var doc = new FiscalDoc();
         doc.setPrint(1);
         doc.setSessionId(issueId.toString());
@@ -362,10 +362,12 @@ public class UmkaFiscalGateway implements FiscalGateway {
         data.setSum(0);
         final var info = getLastStatus();
         // Registration number, Tax identifier, Tax Variant
+        final Order.Firm firm = order.getFirm();
         final var tags = new ArrayList<FiscalProperty>();
         tags.add(new FiscalProperty().setTag(1037).setValue(info.getRegNumber()));
-        tags.add(new FiscalProperty().setTag(1018).setValue(info.getInn()));
-        tags.add(new FiscalProperty().setTag(1055).setValue(info.getTaxVariant()));
+        tags.add(new FiscalProperty().setTag(1018).setValue(firm.getTaxIdentityNumber()));
+        tags.add(new FiscalProperty().setTag(1187).setValue(firm.getAddress()));
+        tags.add(new FiscalProperty().setTag(1055).setValue(firm.getTaxVariant().getFfdCode()));
         // check total
         order.getPayments().stream()
                 .map(payment -> new FiscalProperty()

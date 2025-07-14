@@ -7,6 +7,7 @@ import com.thepointmoscow.frws.UtilityConfig;
 import com.thepointmoscow.frws.exceptions.FiscalException;
 import lombok.val;
 import org.apache.commons.io.IOUtils;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,6 +24,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -39,6 +42,7 @@ class UmkaFiscalGatewayTest {
     private static final MediaType CONTENT_TYPE = MediaType.valueOf("text/plain;charset=UTF-8");
 
     private MockRestServiceServer server;
+    private static final Random RANDOM = new Random();
 
     @Autowired
     private ObjectMapper mapper;
@@ -250,6 +254,47 @@ class UmkaFiscalGatewayTest {
                 .hasFieldOrPropertyWithValue("statusMessage", "Ошибка транспортного соединения ФН")
         ;
         // THEN
+    }
+
+    @Test
+    void shouldMakeCorrectionOrder() throws IOException {
+        // GIVEN
+        final String body = getBodyFromFile("/com/thepointmoscow/frws/umka/open-session.json");
+        this.server.expect(requestTo(GET_STATUS_URL)).andRespond(withSuccess(body, CONTENT_TYPE));
+
+
+        var o = new Order()
+                .setSaleCharge("SALE_CORRECTION")
+                .setFirm(
+                        new Order.Firm()
+                                .setTaxVariant(TaxVariant.PATENT)
+                                .setAddress("https://osobaya-territoria.com")
+                                .setTaxIdentityNumber("561207964904")
+                )
+                .setCorrection(
+                        new Order.Correction()
+                                .setCorrectionType("SELF_MADE")
+                                .setVatType(ItemVatType.VAT_NONE)
+                                .setDocumentDate("2025-04-03")
+                )
+                .setPayments(
+                        List.of(
+                                new Order.Payment()
+                                        .setPaymentType("CREDIT_CARD")
+                                        .setAmount(699000L)
+                        )
+                );
+        // WHEN
+        var result = sut.correctionOrder(o, RANDOM.nextLong());
+        // THEN
+        Assertions.assertThat(result).isNotNull();
+        Assertions.assertThat(result.get("document")).isInstanceOf(FiscalDoc.class);
+        var fiscalDoc = (FiscalDoc) result.get("document");
+        List<FiscalProperty> fiscprops = fiscalDoc.getData().getFiscprops();
+        Assertions.assertThat(fiscprops).isNotEmpty();
+        Assertions.assertThat(fiscprops.stream().filter(p -> p.getTag() == 1055).findFirst())
+                .hasValue(new FiscalProperty().setTag(1055).setValue(32))
+        ;
     }
 
     private static Order generateOrder() {

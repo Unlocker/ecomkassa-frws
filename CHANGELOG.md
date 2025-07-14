@@ -1,3 +1,7 @@
+### 0.4.15 (2025-07-14)
+
+1. Fixed tax variant for correction vouchers.
+
 ### 0.4.14 (2025-03-13)
 
 1. Added 'tax' field for corrections.
