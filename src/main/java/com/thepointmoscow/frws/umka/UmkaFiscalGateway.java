@@ -8,6 +8,7 @@ import com.thepointmoscow.frws.exceptions.FrwsException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lombok.val;
 import org.springframework.boot.info.BuildProperties;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -17,9 +18,12 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.*;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.thepointmoscow.frws.AgentType.AGENT_TYPE_FFD_TAG;
+import static com.thepointmoscow.frws.umka.FiscalProperty.array;
+import static com.thepointmoscow.frws.umka.FiscalProperty.simple;
 import static java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME;
 import static java.util.Optional.ofNullable;
 
@@ -186,97 +190,72 @@ public class UmkaFiscalGateway implements FiscalGateway {
         final var doc = new FiscalDoc();
         doc.setPrint(1);
         doc.setSessionId(issueID.toString());
-        FiscalData data = new FiscalData();
+        FiscalData data = prepareFiscalData(order);
         doc.setData(data);
         data.setDocName("Кассовый чек");
-        final var paymentType = order.getPayments().stream()
-                .findFirst()
-                .map(Order.Payment::getPaymentType)
-                .map(PaymentType::valueOf)
-                .orElse(PaymentType.CASH);
-
-        data.setMoneyType(paymentType.getCode());
-        data.setType(SaleChargeGeneral.valueOf(order.getSaleCharge()).getCode());
-        data.setSum(0);
         final var tags = new ArrayList<FiscalProperty>();
         data.setFiscprops(tags);
 
         final var info = getLastStatus();
         // Registration number, Tax identifier, Tax Variant
         final Order.Firm firm = order.getFirm();
-        tags.add(new FiscalProperty().setTag(1037).setValue(info.getRegNumber()));
-        tags.add(new FiscalProperty().setTag(1018).setValue(firm.getTaxIdentityNumber()));
-        tags.add(new FiscalProperty().setTag(1187).setValue(firm.getAddress()));
-        tags.add(new FiscalProperty().setTag(1055).setValue(firm.getTaxVariant().getFfdCode()));
+        tags.add(simple(1037, info.getRegNumber()));
+        tags.add(simple(1018, firm.getTaxIdentityNumber()));
+        tags.add(simple(1187, firm.getAddress()));
+        tags.add(simple(1055, firm.getTaxVariant().getFfdCode()));
         // sets a cashier name
         ofNullable(order.getCashier())
                 .map(Objects::toString)
-                .map(name -> new FiscalProperty().setTag(1021).setValue(name))
+                .map(name -> simple(1021, name))
                 .ifPresent(tags::add);
-        // check total
-        order.getPayments().stream()
-                .map(payment -> new FiscalProperty()
-                        .setTag(PaymentType.valueOf(payment.getPaymentType()).getTag())
-                        .setValue(payment.getAmount())
-                )
-                .forEach(tags::add);
-
+        tags.addAll(processPaymentTags(order));
         // Sale Charge
-        tags.add(new FiscalProperty().setTag(1054)
-                .setValue(SaleCharge.valueOf(order.getSaleCharge()).getCode()));
+        tags.add(simple(1054, SaleCharge.valueOf(order.getSaleCharge()).getCode()));
 
         // == Customer attributes ==
         final Optional<Order.Customer> maybeCustomer = ofNullable(order.getCustomer());
         // customer id: email or phone
         maybeCustomer.map(Order.Customer::getId)
-                .map(customerId -> new FiscalProperty().setTag(1008).setValue(customerId))
+                .map(customerId -> simple(1008, customerId))
                 .ifPresent(tags::add);
         // customer name
         maybeCustomer.map(Order.Customer::getName)
-                .map(customerName -> new FiscalProperty().setTag(1227).setValue(customerName))
+                .map(customerName -> simple(1227, customerName))
                 .ifPresent(tags::add);
         // customer tax number
         maybeCustomer.map(Order.Customer::getTaxNumber)
-                .map(customerTaxNo -> new FiscalProperty().setTag(1228).setValue(customerTaxNo))
+                .map(customerTaxNo -> simple(1228, customerTaxNo))
                 .ifPresent(tags::add);
         // additional property
         ofNullable(order.getAdditionalCheckProperty())
-                .map(prop -> new FiscalProperty().setTag(1192).setValue(prop))
+                .map(prop -> simple(1192, prop))
                 .ifPresent(tags::add);
 
         for (Order.Item i : order.getItems()) {
             List<FiscalProperty> itemTags = new LinkedList<>();
             PaymentMethod paymentMethod = i.paymentMethod();
-            itemTags.add(
-                    new FiscalProperty()
-                            .setTag(paymentMethod.getFfdTag())
-                            .setValue(paymentMethod.getCode())
-            );
+            itemTags.add(simple(paymentMethod.getFfdTag(), paymentMethod.getCode()));
             PaymentObject paymentObject = i.paymentObject();
-            itemTags.add(
-                    new FiscalProperty()
-                            .setTag(paymentObject.getFfdTag())
-                            .setValue(paymentObject.getCode())
-            );
+            itemTags.add(simple(paymentObject.getFfdTag(), paymentObject.getCode()));
             Optional.of(i.getName())
                     .map(name -> (name.length() <= MAX_ITEM_NAME_LENGTH ? name : name.substring(0, MAX_ITEM_NAME_LENGTH)))
-                    .map(name -> new FiscalProperty().setTag(1030).setValue(name))
+                    .map(name -> simple(1030, name))
                     .ifPresent(itemTags::add);
-            itemTags.add(new FiscalProperty().setTag(1079).setValue(i.getPrice()));
-            itemTags.add(new FiscalProperty().setTag(1023)
-                    .setValue(String.format("%.3f", ((double) i.getAmount()) / SUMMARY_AMOUNT_DENOMINATOR)));
-            itemTags.add(new FiscalProperty().setTag(1199)
-                    .setValue(i.getVatType().getCode()));
+            itemTags.add(simple(1079, i.getPrice()));
+            itemTags.add(
+                    simple(102, String.format("%.3f", ((double) i.getAmount()) / SUMMARY_AMOUNT_DENOMINATOR))
+            );
+            itemTags.add(simple(1199, i.getVatType().getCode()));
             final var total = i.getAmount() * i.getPrice() / SUMMARY_AMOUNT_DENOMINATOR;
-            itemTags.add(new FiscalProperty().setTag(1043).setValue(total));
+            itemTags.add(simple(1043, total));
             ofNullable(i.getMeasurementUnit())
-                    .map(it -> new FiscalProperty().setTag(1197).setValue(it))
+                    .map(it -> simple(1197, it))
                     .ifPresent(itemTags::add);
             ofNullable(i.getUserData())
-                    .map(it -> new FiscalProperty().setTag(1191).setValue(it))
+                    .map(it -> simple(1191, it))
                     .ifPresent(itemTags::add);
             ofNullable(i.getNomenclatureCode())
-                    .map(it -> new FiscalProperty().setTag(1162).setValue(it))
+                    .map(it -> simple(1162, it))
                     .ifPresent(itemTags::add);
 
             // supplier information
@@ -284,54 +263,52 @@ public class UmkaFiscalGateway implements FiscalGateway {
                 List<FiscalProperty> suppProps = new LinkedList<>();
                 ofNullable(suppInfo.getSupplierPhones()).ifPresent(
                         phones -> phones.forEach(
-                                phone -> suppProps.add(new FiscalProperty().setTag(1171).setValue(phone))
+                                phone -> suppProps.add(simple(1171, phone))
                         )
                 );
-                ofNullable(suppInfo.getSupplierName()).ifPresent(
-                        it -> suppProps.add(new FiscalProperty().setTag(1225).setValue(it))
-                );
-                itemTags.add(new FiscalProperty().setTag(1224).setFiscprops(suppProps));
+                ofNullable(suppInfo.getSupplierName()).ifPresent(it -> suppProps.add(simple(1225, it)));
+                itemTags.add(array(1224, suppProps));
 
                 // supplier tax number writes directly to item tags
                 ofNullable(suppInfo.getSupplierInn())
-                        .map(it -> new FiscalProperty().setTag(1226).setValue(it))
+                        .map(it -> simple(1226, it))
                         .ifPresent(itemTags::add);
             });
 
             // agent information
             ofNullable(i.getAgent()).ifPresent(agent -> {
                 ofNullable(agent.getAgentType())
-                        .map(agentType -> new FiscalProperty().setTag(AGENT_TYPE_FFD_TAG).setValue(agentType.getFfdCode()))
+                        .map(agentType -> simple(AGENT_TYPE_FFD_TAG, agentType.getFfdCode()))
                         .ifPresent(itemTags::add);
                 List<FiscalProperty> agentProps = new LinkedList<>();
                 ofNullable(agent.getPayingOperation())
-                        .map(operation -> new FiscalProperty().setTag(1044).setValue(operation))
+                        .map(operation -> simple(1044, operation))
                         .ifPresent(agentProps::add);
                 ofNullable(agent.getPayingPhones())
-                        .map(phones -> phones.stream().map(phone -> new FiscalProperty().setTag(1073).setValue(phone)))
+                        .map(phones -> phones.stream().map(phone -> simple(1073, phone)))
                         .ifPresent(phoneProps -> phoneProps.forEach(agentProps::add));
                 ofNullable(agent.getReceiverPhones())
-                        .map(phones -> phones.stream().map(phone -> new FiscalProperty().setTag(1074).setValue(phone)))
+                        .map(phones -> phones.stream().map(phone -> simple(1074, phone)))
                         .ifPresent(phoneProps -> phoneProps.forEach(agentProps::add));
                 ofNullable(agent.getTransferPhones())
-                        .map(phones -> phones.stream().map(phone -> new FiscalProperty().setTag(1075).setValue(phone)))
+                        .map(phones -> phones.stream().map(phone -> simple(1075, phone)))
                         .ifPresent(phoneProps -> phoneProps.forEach(agentProps::add));
                 ofNullable(agent.getTransferName())
-                        .map(value -> new FiscalProperty().setTag(1026).setValue(value))
+                        .map(value -> simple(1026, value))
                         .ifPresent(agentProps::add);
                 ofNullable(agent.getTransferAddress())
-                        .map(value -> new FiscalProperty().setTag(1005).setValue(value))
+                        .map(value -> simple(1005, value))
                         .ifPresent(agentProps::add);
                 ofNullable(agent.getTransferInn())
-                        .map(operation -> new FiscalProperty().setTag(1016).setValue(operation))
+                        .map(operation -> simple(1016, operation))
                         .ifPresent(agentProps::add);
-                itemTags.add(new FiscalProperty().setTag(1223).setFiscprops(agentProps));
+                itemTags.add(array(1223, agentProps));
             });
 
-            final var item = new FiscalProperty().setTag(1059).setFiscprops(itemTags);
+            final var item = array(1059, itemTags);
             tags.add(item);
         }
-        tags.add(new FiscalProperty().setTag(1060).setValue("www.nalog.ru"));
+        tags.add(simple(1060, "www.nalog.ru"));
         Map<String, Object> request = new HashMap<>();
         request.put("document", doc);
         return request;
@@ -348,36 +325,20 @@ public class UmkaFiscalGateway implements FiscalGateway {
         final var doc = new FiscalDoc();
         doc.setPrint(1);
         doc.setSessionId(issueId.toString());
-        FiscalData data = new FiscalData();
+        FiscalData data = prepareFiscalData(order);
         doc.setData(data);
         data.setDocName("Чек коррекции");
-        final var paymentType = order.getPayments().stream()
-                .findFirst()
-                .map(Order.Payment::getPaymentType)
-                .map(PaymentType::valueOf)
-                .orElse(PaymentType.CASH);
-
-        data.setMoneyType(paymentType.getCode());
-        data.setType(SaleChargeGeneral.valueOf(order.getSaleCharge()).getCode());
-        data.setSum(0);
         final var info = getLastStatus();
         // Registration number, Tax identifier, Tax Variant
         final Order.Firm firm = order.getFirm();
         final var tags = new ArrayList<FiscalProperty>();
-        tags.add(new FiscalProperty().setTag(1037).setValue(info.getRegNumber()));
-        tags.add(new FiscalProperty().setTag(1018).setValue(firm.getTaxIdentityNumber()));
-        tags.add(new FiscalProperty().setTag(1187).setValue(firm.getAddress()));
-        tags.add(new FiscalProperty().setTag(1055).setValue(firm.getTaxVariant().getFfdCode()));
-        // check total
-        order.getPayments().stream()
-                .map(payment -> new FiscalProperty()
-                        .setTag(PaymentType.valueOf(payment.getPaymentType()).getTag())
-                        .setValue(payment.getAmount())
-                )
-                .forEach(tags::add);
-
+        tags.add(simple(1037, info.getRegNumber()));
+        tags.add(simple(1018, firm.getTaxIdentityNumber()));
+        tags.add(simple(1187, firm.getAddress()));
+        tags.add(simple(1055, firm.getTaxVariant().getFfdCode()));
+        tags.addAll(processPaymentTags(order));
         // Sale Charge
-        tags.add(new FiscalProperty().setTag(1054).setValue(SaleCharge.valueOf(order.getSaleCharge()).getCode()));
+        tags.add(simple(1054, SaleCharge.valueOf(order.getSaleCharge()).getCode()));
         if (order.getCorrection() == null) {
             throw new FrwsException(
                     String.format(
@@ -388,23 +349,66 @@ public class UmkaFiscalGateway implements FiscalGateway {
             );
         }
         final var correction = order.getCorrection();
-        tags.add(new FiscalProperty().setTag(1173).setValue("SELF_MADE".equals(correction.getCorrectionType()) ? 0 : 1));
-        FiscalProperty corrTag = new FiscalProperty().setTag(1174).setFiscprops(new ArrayList<>());
-        corrTag.getFiscprops().add(new FiscalProperty().setTag(1177).setValue(correction.getDescription()));
-        corrTag.getFiscprops().add(new FiscalProperty().setTag(1178).setValue(
-                LocalDate.parse(correction.getDocumentDate())
-                        .atStartOfDay()
-                        .atZone(ZoneId.systemDefault())
-                        .format(RFC_1123_DATE_TIME))
+        tags.add(simple(1173, "SELF_MADE".equals(correction.getCorrectionType()) ? 0 : 1));
+        List<FiscalProperty> corrInfo = List.of(
+                simple(1177, correction.getDescription()),
+                simple(
+                        1178,
+                        LocalDate.parse(correction.getDocumentDate())
+                                .atStartOfDay()
+                                .atZone(ZoneId.systemDefault())
+                                .format(RFC_1123_DATE_TIME)
+                ),
+                simple(1179, correction.getDocumentNumber())
         );
-        corrTag.getFiscprops().add(new FiscalProperty().setTag(1179).setValue(correction.getDocumentNumber()));
-        tags.add(corrTag);
+        tags.add(array(1174, corrInfo));
 
         data.setFiscprops(tags);
         data.setTax(correction.getVatType().getCode());
         Map<String, Object> request = new HashMap<>();
         request.put("document", doc);
         return request;
+    }
+
+    /**
+     * Processes a list of tags related to payments.
+     *
+     * @param order order
+     * @return a list of tags
+     */
+    private List<FiscalProperty> processPaymentTags(Order order) {
+        // check total
+        List<FiscalProperty> payments = order.getPayments().stream()
+                .map(payment -> simple(PaymentType.valueOf(payment.getPaymentType()).getTag(), payment.getAmount()))
+                .collect(Collectors.toList());
+
+        val fromInternet = payments.stream()
+                .filter(tag -> tag.getTag() == PaymentType.CREDIT_CARD.getTag())
+                .findFirst()
+                .map(t -> 1)
+                .orElse(0);
+        payments.add(simple(1125, fromInternet));
+        return payments;
+    }
+
+    /**
+     * Makes fiscal data prototype using order payments.
+     *
+     * @param order order
+     * @return fiscal data
+     */
+    private FiscalData prepareFiscalData(Order order) {
+        FiscalData data = new FiscalData();
+        final var paymentType = order.getPayments().stream()
+                .findFirst()
+                .map(Order.Payment::getPaymentType)
+                .map(PaymentType::valueOf)
+                .orElse(PaymentType.CASH);
+
+        data.setMoneyType(paymentType.getCode());
+        data.setType(SaleChargeGeneral.valueOf(order.getSaleCharge()).getCode());
+        data.setSum(0);
+        return data;
     }
 
     /**

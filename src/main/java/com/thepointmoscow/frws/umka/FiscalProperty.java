@@ -13,4 +13,12 @@ class FiscalProperty {
     private int tag;
     private Object value;
     private List<FiscalProperty> fiscprops;
+
+    public static FiscalProperty simple(int tag, Object value) {
+        return new FiscalProperty().setTag(tag).setValue(value);
+    }
+
+    public static FiscalProperty array(int tag, List<FiscalProperty> props) {
+        return new FiscalProperty().setTag(tag).setFiscprops(props);
+    }
 }

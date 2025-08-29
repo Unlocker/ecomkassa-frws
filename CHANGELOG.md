@@ -1,3 +1,8 @@
+### 0.4.16 (2025-08-29)
+
+1. Added tag 1125.
+2. Refactored fiscal property constructors.
+
 ### 0.4.15 (2025-07-14)
 
 1. Fixed tax variant for correction vouchers.
