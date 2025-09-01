@@ -1,3 +1,7 @@
+### 0.4.17 (2025-09-01)
+
+1. Fixed wrong tag number '102' instead of '1023'.
+
 ### 0.4.16 (2025-08-29)
 
 1. Added tag 1125.

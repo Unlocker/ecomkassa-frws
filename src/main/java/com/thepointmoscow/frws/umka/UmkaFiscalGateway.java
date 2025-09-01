@@ -243,7 +243,7 @@ public class UmkaFiscalGateway implements FiscalGateway {
                     .ifPresent(itemTags::add);
             itemTags.add(simple(1079, i.getPrice()));
             itemTags.add(
-                    simple(102, String.format("%.3f", ((double) i.getAmount()) / SUMMARY_AMOUNT_DENOMINATOR))
+                    simple(1023, String.format("%.3f", ((double) i.getAmount()) / SUMMARY_AMOUNT_DENOMINATOR))
             );
             itemTags.add(simple(1199, i.getVatType().getCode()));
             final var total = i.getAmount() * i.getPrice() / SUMMARY_AMOUNT_DENOMINATOR;
