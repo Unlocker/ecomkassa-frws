@@ -20,7 +20,9 @@ public enum ItemVatType {
     VAT_05PCT(7),
     VAT_07PCT(8),
     VAT_105PCT(9),
-    VAT_107PCT(10);
+    VAT_107PCT(10),
+    VAT_22PCT(11),
+    VAT_122PCT(12);
 
     private final int code;
 

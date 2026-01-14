@@ -1,3 +1,7 @@
+### 0.4.18 (2026-01-14)
+
+1. Added new VATs.
+
 ### 0.4.17 (2025-09-01)
 
 1. Fixed wrong tag number '102' instead of '1023'.
